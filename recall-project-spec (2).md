@@ -61,50 +61,84 @@ Someone who receives a high volume of task-relevant, document-relevant email and
 - **Provider table** — a system-level registry of which providers are enabled, independent of any user's connections. Enforced centrally via one guard function (`provider_service.assert_enabled(key)`) called by every connect/sync/search action — not scattered per-route checks. Lets "coming soon" providers (WhatsApp/Slack/SMS) be backend-enforced, not just UI-greyed-out, and gives a single kill switch if a provider breaks mid-build.
 
 ## Data model (core objects)
-```
-User
- - id, primary_email, plan (free/pro), query_count
 
-Provider
+> Updated to match the implemented v1 schema. Full rationale lives in `docs/DATABASE_DESIGN.md`.
+> Naming change from spec v0: ingested mail is now **Email** (was "Message"); chat turns are now **Message** (was "ChatTurn").
+
+```
+Plan
+ - id, name ("free" | "pro"), max_daily_queries (-1 = unlimited)
+ - memory_limit_gb, is_active, created_at
+
+User
+ - id (UUID), name, primary_email (unique — login identity), profile_picture_url
+ - plan_id (FK -> Plan), plan_usage (daily query counter), last_plan_reset
+ - created_at
+
+Provider (system-level registry of enabled providers; central kill switch)
  - id, key ("gmail" | "whatsapp" | "slack" | "sms")
- - display_name, auth_type ("oauth" | "phone_verification"), is_enabled
+ - display_name, auth_type ("oauth" | "phone_verification")
+ - is_active, created_at, activated_at
 
 ConnectedAccount
  - id, user_id (FK), provider_id (FK -> Provider)
- - account_email (which Gmail address this connection points at — first-class column, not buried inside credentials; needed for sidebar display and identity-conflict checks)
+ - account_identifier (first-class column: an email address for Gmail today,
+   a phone number etc. later — needed for sidebar display and
+   identity-conflict checks; never buried inside credentials)
  - display_label (e.g. "Work", "Personal")
- - credentials (JSON — shape varies by provider: {access_token, refresh_token} for OAuth, {phone_number, session_id} for phone-based)
+ - credentials (JSONB — shape varies by provider:
+   {access_token, refresh_token} for OAuth)
  - is_active, connected_at
+ - UNIQUE(user_id, provider_id, account_identifier)
 
-Message (from a connected account)
- - id, user_id, account_id (FK to ConnectedAccount)
- - raw_content, summary, embedding
- - has_attachment, has_link
+Email (an ingested message from a connected mailbox)
+ - id, user_id (denormalized tenant scope), account_id (FK -> ConnectedAccount)
+ - external_id (provider's immutable message id; UNIQUE per account ->
+   idempotent re-syncs + Gmail deep links), thread_id
+ - sender, subject, raw_body (stored — grounded answers need exact facts
+   without query-time API calls), summary (LLM, Phase 2)
+ - embedding (pgvector VECTOR(1536))
+ - has_attachment, has_link, sent_at, created_at
 
-Attachment
- - id, message_id, filename, extracted_text, embedding, version_guess
+Attachment (metadata only in v1 — binaries are NEVER stored; files route
+ back to Gmail via deep links. Text extraction columns reserved, Phase 2)
+ - id, email_id (FK), filename, mime_type, size_bytes, gmail_attachment_id
+ - extracted_text, embedding, version_guess  (nullable until Phase 2)
 
 Link
- - id, message_id, url, context_snippet
+ - id, email_id (FK), url, domain, context_snippet
 
-EventCandidate
- - id, message_id, title, datetime_guess, attendees, status (pending/confirmed/dismissed)
+EventCandidate — DEFERRED to Phase 2 as its own Alembic migration:
+ - id, email_id (FK), title, datetime_guess, attendees
+ - status (pending/confirmed/dismissed)
 
 Conversation
- - id, user_id, title, created_at, updated_at
+ - id, user_id (FK), title, started_at, last_modified_at
 
-ChatTurn
+Message (one chat turn)
  - id, conversation_id (FK -> Conversation)
- - role ("user" | "assistant"), content
- - sources (JSONB — evidence cards rendered inline in the UI)
+ - direction ("user" | "assistant"), content
+ - status ("pending" | "sent" | "error")
+ - sources (JSONB, assistant turns only — evidence cards referencing
+   Email/Attachment/Link ids + Gmail URLs, rendered inline in the UI)
+ - embedding (nullable, reserved — chat-history search out of scope in v1)
  - created_at
 ```
+
+**Hybrid storage rule:** email bodies and metadata live in Postgres;
+attachment binaries never do. Every citation card carries a Gmail deep link
+built from `thread_id`/`external_id`, so files are fetched from Google by the
+authenticated user instead of being stored by us.
+
+**Usage stats:** insight numbers (emails indexed, attachments, links) are
+computed live with COUNT queries — no drift-prone counters. Only the daily
+query quota persists (`plan_usage` + `last_plan_reset`).
 
 ## Backend feature checklist
 1. **Auth & identity** — Google OAuth login/callback, session identification on every request
 2. **Account management** — connect/list/toggle ConnectedAccounts, enforce Provider.is_enabled
 3. **Ingestion** — pull raw messages + attachments from a provider's API
-4. **Storage** — persist Message/Attachment/Link rows
+4. **Storage** — persist Email/Attachment/Link rows
 5. **Embedding** — embed message/attachment text on ingest, store the vector
 6. **Search/retrieval** — embed a query, compare against stored vectors, return ranked matches
 7. **Extraction** — LLM call per message to detect documents/links/event mentions, populate structured tables
@@ -159,7 +193,7 @@ recall/
 │   │   ├── __init__.py
 │   │   ├── connector.py               # engine + session setup
 │   │   ├── db_instance.py             # session dependency for routes
-│   │   └── models.py                  # User, Provider, ConnectedAccount, Message, Attachment, Link, EventCandidate, Conversation, ChatTurn
+│   │   └── models.py                  # Plan, User, Provider, ConnectedAccount, Email, Attachment, Link, Conversation, Message (+ EventCandidate in Phase 2)
 │   ├── schemas/
 │   │   ├── __init__.py
 │   │   ├── auth.py

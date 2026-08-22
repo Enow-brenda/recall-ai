@@ -27,6 +27,8 @@ Recall is not an inbox replacement. It's a lightweight, chat-first search layer 
 | Migrations | Alembic |
 | Frontend | React (Vite) |
 
+The complete database schema and the reasoning behind every design decision are documented in [docs/DATABASE_DESIGN.md](docs/DATABASE_DESIGN.md).
+
 ## Project Structure
 
 ```
