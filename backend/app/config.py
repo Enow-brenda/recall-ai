@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     )
 
     app_name: str = "Recall API"
+    app_version: str = "0.1.0"
     environment: str = "dev"
 
     database_url: str = ""
@@ -24,6 +25,7 @@ class Settings(BaseSettings):
     jwt_secret: str = "change-me-in-env"
     jwt_algorithm: str = "HS256"
     jwt_expire_days: int = 7
+    app_origin: str = "http://localhost:5173"
 
     cors_origins: list[str] = ["http://localhost:5173", "http://localhost:3000"]
 
