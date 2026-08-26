@@ -14,6 +14,7 @@ from sqlalchemy import (
     func,
     text,
 )
+from sqlalchemy.orm import Mapped, mapped_column, relationship 
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 from decimal import Decimal
@@ -51,6 +52,7 @@ class User(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
+    plan: Mapped["Plan"] = relationship() 
 
 # the different providers we can connect to
 class Provider(Base):

@@ -1,4 +1,3 @@
-import uuid
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
@@ -8,7 +7,7 @@ from app.db.db_instance import get_db
 from app.db.models import User
 from app.schemas.common import ok
 from app.schemas.user import DeleteAccountRequest
-from app.services.user_service import delete_account, get_profile, get_stats, update_profile
+from app.services.user_service import delete_account, get_profile, get_stats
 
 router = APIRouter(tags=["Users"])          # main.py mounts under /users
 

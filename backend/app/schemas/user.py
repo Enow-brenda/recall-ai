@@ -10,7 +10,8 @@ class DeleteAccountRequest(BaseModel):
 
 class PlanInfo(BaseModel):
     id: uuid.UUID
-    name: str                                # must equal "DELETE"
+    name: str 
+    max_daily_queries: int                               # must equal "DELETE"
 
 # this is returned when we get a user
 class UserProfile(BaseModel):                       # response shape for GET/PATCH

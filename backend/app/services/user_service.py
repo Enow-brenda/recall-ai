@@ -9,7 +9,6 @@ from app.db.db_instance import get_db
 from app.db.models import Attachment, ConnectedAccount, Conversation, Email, Link, Message, User
 from app.schemas.user import (
     PlanInfo,
-    UpdateProfileRequest,
     UsageStats,
     UserProfile,
 )

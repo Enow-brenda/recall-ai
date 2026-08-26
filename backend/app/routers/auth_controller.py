@@ -21,7 +21,7 @@ from app.services.auth_service import (
     resolve_login,
 )
 # controller for all the auth endpoints
-router  = APIRouter(tags=["auth"]) 
+router  = APIRouter(tags=["Auth"]) 
 
 @router.get("/login")
 def login():

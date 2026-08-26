@@ -1,18 +1,19 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routers.auth_controller import auth_router 
+from app.routers.auth_controller import router as auth_router 
 
 from app.config import settings
 from app.core.exception_handlers import register_exception_handlers
 from app.core.logging import setup_logging
 
-from app.routers.user_controller import user_controller_router
+from app.routers.user_controller import router as user_controller_router
 
 setup_logging()
 
 tags_metadata = [
-    {"name": "Users", "description": "Operations related to user management"}
+    {"name": "Users", "description": "Operations related to user management"},
+    {"name": "Auth", "description": "Operations related to authentication mostly gmail authentication for now"}
 ]
 app = FastAPI(title=settings.app_name, openapi_tags=tags_metadata, version=settings.app_version)
 
