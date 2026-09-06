@@ -11,6 +11,7 @@ from sqlalchemy import (
     Numeric,
     String,
     UniqueConstraint,
+    Text,
     func,
     text,
 )
@@ -103,11 +104,11 @@ class Email(Base):
     account_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("connected_accounts.id", ondelete="CASCADE"), index=True)
 
     external_id: Mapped[str] = mapped_column(String(255), nullable=False)
-    thread_id: Mapped[str | None] = mapped_column(String(255), nullable=False)
+    thread_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
 
-    sender: Mapped[str | None] = mapped_column(String(255), nullable=False)
+    sender: Mapped[str | None] = mapped_column(String(255), nullable=True)
     subject: Mapped[str | None] = mapped_column(String(255))
-    raw_body: Mapped[str] = mapped_column(String(255), nullable=False)
+    raw_body: Mapped[str] = mapped_column(Text(), nullable=False)
     summary: Mapped[str | None] = mapped_column(String(255))
 
     embedding: Mapped[list[float] | None] = mapped_column(Vector(1536))

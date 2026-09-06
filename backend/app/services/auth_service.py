@@ -88,7 +88,7 @@ def resolve_login(db, tokens: dict, info: dict, current_user: User | None) -> tu
     # user exists
     # first check if there is no user linked to this primary account
     clash = db.query(ConnectedAccount).filter_by(provider_id=provider.id, account_identifier=info["email"]).first()
-    if clash and clash.id != user.id:
+    if clash and clash.user_id != user.id:
         raise ConflictError(f"{info['email']} is already linked to another Recall account")
 
     # now we update the user/account information

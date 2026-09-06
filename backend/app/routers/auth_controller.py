@@ -1,8 +1,9 @@
 import secrets
 
 from fastapi import APIRouter, Depends, Request
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, JSONResponse
 from sqlalchemy.orm import Session
+from fastapi import BackgroundTasks
 
 from app.config import settings
 from app.core.exceptions import InvalidRequestError
@@ -13,6 +14,7 @@ from app.core.middleware.auth_backend import (
 )
 from app.db.db_instance import get_db
 from app.db.models import User
+from app.services.gmail_service import run_initial_sync
 from app.schemas.common import ok
 from app.services.auth_service import (
     build_auth_url,
@@ -35,13 +37,17 @@ def login():
     return resp
 
 @router.get("/callback")
-def callback(code: str, state: str, request: Request, db: Session = Depends(get_db)):
+def callback(background_tasks: BackgroundTasks, code: str, state: str, request: Request, db: Session = Depends(get_db)):
     if request.cookies.get("oauth_state") != state:
         raise InvalidRequestError("OAuth state mismatch")
     tokens = exchange_code(code)
     info   = fetch_userinfo(tokens["access_token"])
     current_user = _optional_current_user(request, db)   # None if not logged in yet
     user, created_new_user = resolve_login(db, tokens, info, current_user)
+
+    #sync each time a user logs in
+    background_tasks.add_task(run_initial_sync, user.id, info["email"])
+
 
     token = create_access_token(user.id)
     resp = RedirectResponse(settings.app_origin or "/")
@@ -52,7 +58,8 @@ def callback(code: str, state: str, request: Request, db: Session = Depends(get_
 
 @router.post("/logout")
 def logout():
-    resp = ok(None, "Logged out")
+    payload = ok(None, "Logged out")
+    resp = JSONResponse(content=payload.model_dump())  
     resp.delete_cookie(SESSION_COOKIE)
     return resp
 
