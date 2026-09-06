@@ -11,6 +11,10 @@ from app.core.exceptions import ConflictError
 # this has 4 jobs
 # job 1:  build the google consent url
 
+# shared cookie names for the OAuth flow
+OAUTH_STATE_COOKIE = "oauth_state"
+OAUTH_INTENT_COOKIE = "oauth_intent"
+
 SCOPES = [
     "openid",
     "https://www.googleapis.com/auth/userinfo.email", 
@@ -93,9 +97,12 @@ def resolve_login(db, tokens: dict, info: dict, current_user: User | None) -> tu
 
     # now we update the user/account information
     account = db.query(ConnectedAccount).filter_by(user_id=user.id, provider_id=provider.id, account_identifier=info["email"]).first()
+    # Google only returns a refresh_token on FIRST consent; on later logins
+    # keep the one we already stored so syncing keeps working.
+    stored = (account.credentials or {}) if account else {}
     creds = {
         "access_token": tokens["access_token"],
-        "refresh_token": tokens.get("refresh_token"),
+        "refresh_token": tokens.get("refresh_token") or stored.get("refresh_token"),
         "expires_at": (datetime.now(timezone.utc) + timedelta(seconds=tokens["expires_in"])).isoformat(),
     }
     # if there is no such account we create the account

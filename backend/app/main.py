@@ -7,13 +7,15 @@ from app.config import settings
 from app.core.exception_handlers import register_exception_handlers
 from app.core.logging import setup_logging
 
+from app.routers.accounts_controller import router as accounts_router
 from app.routers.user_controller import router as user_controller_router
 
 setup_logging()
 
 tags_metadata = [
     {"name": "Users", "description": "Operations related to user management"},
-    {"name": "Auth", "description": "Operations related to authentication mostly gmail authentication for now"}
+    {"name": "Auth", "description": "Operations related to authentication mostly gmail authentication for now"},
+    {"name": "Accounts", "description": "Connected accounts, providers and connections"},
 ]
 app = FastAPI(title=settings.app_name, openapi_tags=tags_metadata, version=settings.app_version)
 
@@ -37,4 +39,6 @@ def health() -> dict:
 # Include the routers from controller modules
 app.include_router(user_controller_router, prefix="/users", tags=["Users"])
          
-app.include_router(auth_router, prefix="/auth", tags=["Auth"]) 
+app.include_router(auth_router, prefix="/auth", tags=["Auth"])
+
+app.include_router(accounts_router, prefix="/accounts", tags=["Accounts"]) 
