@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import type { KeyboardEvent } from 'react'
 import type { AccountSummary, ProviderInfo } from '../../api/types'
 import { api, USE_MOCK_API } from '../../api/client'
 import { Icon } from '../Icon'
@@ -39,6 +40,16 @@ export function AddAccountModal({ open, onClose, onAdded }: AddAccountModalProps
   }
 
   const isConnected = (key: string) => accounts.some((a) => a.provider_key === key)
+  const providerIcon = (key: string) =>
+    key === 'gmail' ? 'mail' : key === 'whatsapp' ? 'chat' : key === 'slack' ? 'forum' : 'sms'
+
+  const onKeyDown =
+    (provider: string) => (e: KeyboardEvent<HTMLLIElement>) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault()
+        void connect(provider)
+      }
+    }
 
   return (
     <Modal
@@ -57,38 +68,49 @@ export function AddAccountModal({ open, onClose, onAdded }: AddAccountModalProps
       }
     >
       <p className="mb-4 text-body-sm text-muted">
-        Connect a source so Recall can search across it. More sources means a fuller memory.
+        Connect a source so Recall can search across it. Tap a provider to begin.
       </p>
       <ul className="space-y-2.5">
         {providers.map((p) => {
           const busy = connecting === p.key
+          const connectable = p.is_active && !isConnected(p.key)
           return (
-            <li key={p.key} className="flex items-center gap-3 rounded-[8px] border border-border p-3">
-              <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-surface-high">
-                <Icon name={p.key === 'gmail' ? 'mail' : p.key === 'whatsapp' ? 'chat' : p.key === 'slack' ? 'forum' : 'sms'} size={20} className="text-primary" />
+            <li
+              key={p.key}
+              role={connectable ? 'button' : undefined}
+              tabIndex={connectable ? 0 : undefined}
+              onClick={connectable ? () => void connect(p.key) : undefined}
+              onKeyDown={connectable ? onKeyDown(p.key) : undefined}
+              className={`flex items-center gap-3 rounded-[8px] border border-border p-3 transition-colors ${
+                connectable ? 'cursor-pointer hover:border-accent hover:bg-surface' : ''
+              } ${busy ? 'cursor-wait opacity-70' : ''}`}
+            >
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-surface-high">
+                <Icon name={providerIcon(p.key)} size={20} className="text-primary" />
               </span>
               <div className="min-w-0 flex-1">
                 <p className="text-body-sm font-medium text-primary">{p.display_name}</p>
-                <p className="text-label-sm text-muted">{isConnected(p.key) ? 'Connected' : p.is_active ? 'Available' : 'Coming soon'}</p>
+                <p className="text-label-sm text-muted">
+                  {isConnected(p.key) ? 'Connected' : p.is_active ? 'Available' : 'Coming soon'}
+                </p>
               </div>
-              {p.is_active && !isConnected(p.key) && (
-                <button
-                  type="button"
-                  onClick={() => connect(p.key)}
-                  disabled={busy}
-                  className="flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-label-md text-on-accent transition-colors hover:bg-accent-hover disabled:opacity-60"
-                >
-                  {busy ? <Icon name="sync" size={14} className="animate-spin" /> : <Icon name="add" size={14} />}
-                  {busy ? 'Connecting' : 'Connect'}
-                </button>
-              )}
+              {connectable &&
+                (busy ? (
+                  <span className="flex shrink-0 items-center gap-1.5 text-label-md text-accent">
+                    <Icon name="sync" size={14} className="animate-spin" /> Connecting
+                  </span>
+                ) : (
+                  <span className="flex shrink-0 items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-label-md text-on-accent">
+                    <Icon name="add" size={14} /> Connect
+                  </span>
+                ))}
               {isConnected(p.key) && (
-                <span className="flex items-center gap-1 text-label-sm font-medium text-success">
+                <span className="flex shrink-0 items-center gap-1 text-label-sm font-medium text-success">
                   <Icon name="check_circle" size={15} filled /> Connected
                 </span>
               )}
               {!p.is_active && !isConnected(p.key) && (
-                <span className="rounded-full bg-surface-low px-3 py-1 text-label-sm uppercase tracking-wider text-muted">
+                <span className="shrink-0 rounded-full bg-surface-low px-3 py-1 text-label-sm uppercase tracking-wider text-muted">
                   Soon
                 </span>
               )}

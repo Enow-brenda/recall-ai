@@ -8,6 +8,9 @@ interface SidebarProps {
   conversations: Conversation[]
   activeConversationId: string | null
   accounts: AccountSummary[]
+  togglingAccountId: string | null
+  creatingConversation: boolean
+  selectingConversationId: string | null
   onNewChat: () => void
   onSelectConversation: (id: string) => void
   onToggleAccount: (id: string, checked: boolean) => void
@@ -18,15 +21,13 @@ interface SidebarProps {
   onClose: () => void
 }
 
-const COMING_SOON = [
-  { key: 'whatsapp', label: 'WhatsApp', icon: 'forum' },
-  { key: 'slack', label: 'Slack', icon: 'tag' },
-]
-
 export function Sidebar({
   conversations,
   activeConversationId,
   accounts,
+  togglingAccountId,
+  creatingConversation,
+  selectingConversationId,
   onNewChat,
   onSelectConversation,
   onToggleAccount,
@@ -63,9 +64,14 @@ export function Sidebar({
       <button
         type="button"
         onClick={onNewChat}
-        className="mt-4.5 flex w-full items-center justify-center gap-2 rounded-full bg-accent py-2.5 text-label-md font-medium text-on-accent shadow-card transition-colors hover:bg-accent-hover"
+        disabled={creatingConversation}
+        className="mt-4.5 flex w-full items-center justify-center gap-2 rounded-full bg-accent py-2.5 text-label-md font-medium text-on-accent shadow-card transition-colors hover:bg-accent-hover disabled:cursor-wait disabled:opacity-70"
       >
-        <Icon name="add" size={18} />
+        {creatingConversation ? (
+          <Icon name="sync" size={18} className="animate-spin" />
+        ) : (
+          <Icon name="add" size={18} />
+        )}
         New Memory
       </button>
 
@@ -103,7 +109,8 @@ export function Sidebar({
                         onSelectConversation(c.id)
                         onClose()
                       }}
-                      className={`flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left text-body-sm transition-colors ${
+                      disabled={selectingConversationId === c.id}
+                      className={`flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left text-body-sm transition-colors disabled:cursor-wait ${
                         activeConversationId === c.id
                           ? 'bg-primary text-on-primary'
                           : 'text-primary hover:bg-surface-high'
@@ -116,6 +123,9 @@ export function Sidebar({
                         filled={activeConversationId === c.id}
                       />
                       <span className="truncate">{c.title}</span>
+                      {selectingConversationId === c.id && (
+                        <Icon name="sync" size={14} className="ml-auto animate-spin shrink-0" />
+                      )}
                     </button>
                   </li>
                 ))}
@@ -132,7 +142,11 @@ export function Sidebar({
             className="flex w-full items-center justify-between rounded-lg px-2 py-1.5 text-label-sm uppercase tracking-wider text-muted transition-colors hover:bg-surface-high"
           >
             Sources
-            <Icon name={sourcesOpen ? 'expand_more' : 'expand_less'} size={16} className="transition-transform" />
+            <Icon
+              name={sourcesOpen ? 'expand_more' : 'expand_less'}
+              size={16}
+              className="transition-transform"
+            />
           </button>
           {sourcesOpen && (
             <ul className="mt-1 space-y-0.5">
@@ -147,23 +161,10 @@ export function Sidebar({
                   </span>
                   <ToggleSwitch
                     checked={acc.is_active}
+                    busy={togglingAccountId === acc.id}
                     onChange={(v) => onToggleAccount(acc.id, v)}
                     label={`Toggle ${acc.display_label}`}
                   />
-                </li>
-              ))}
-              {COMING_SOON.map((s) => (
-                <li
-                  key={s.key}
-                  className="flex items-center justify-between gap-2 rounded-lg px-2 py-1.5 opacity-60"
-                >
-                  <span className="flex min-w-0 items-center gap-2 text-body-sm text-primary">
-                    <Icon name={s.icon} size={16} className="shrink-0 text-muted" />
-                    <span className="truncate">{s.label}</span>
-                  </span>
-                  <span className="rounded-full bg-surface-high px-2 py-0.5 text-[10px] uppercase tracking-wide text-muted">
-                    Soon
-                  </span>
                 </li>
               ))}
             </ul>
@@ -172,45 +173,32 @@ export function Sidebar({
       </nav>
 
       {/* Footer */}
-      <div className="mt-4 border-t border-border pt-2.5">
-        <p className="px-2 text-label-sm uppercase tracking-wider text-muted">Connected Accounts</p>
-        <div className="mt-1 flex flex-col">
-          {accounts.map((acc) => (
-            <button
-              key={acc.id}
-              type="button"
-              onClick={onOpenAccounts}
-              className="flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-body-sm text-primary transition-colors hover:bg-surface-high"
-            >
-              <Icon name="mail" size={16} className="shrink-0 text-muted" />
-              <span className="min-w-0 flex-1 truncate text-left">{acc.display_label}</span>
-              <Icon
-                name={acc.is_active ? 'sync' : 'pause_circle'}
-                size={14}
-                className="shrink-0 text-muted"
-                filled
-              />
-            </button>
-          ))}
-        </div>
-        <div className="mt-1 space-y-0.5 border-t border-border pt-2">
-          <button
-            type="button"
-            onClick={onOpenSettings}
-            className="flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-body-sm text-primary transition-colors hover:bg-surface-high"
-          >
-            <Icon name="settings" size={17} className="text-muted" />
-            Settings
-          </button>
-          <button
-            type="button"
-            onClick={onOpenHelp}
-            className="flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-body-sm text-primary transition-colors hover:bg-surface-high"
-          >
-            <Icon name="help" size={17} className="text-muted" />
-            Help
-          </button>
-        </div>
+      <div className="mt-4 space-y-0.5 border-t border-border pt-2.5">
+        <button
+          type="button"
+          onClick={onOpenAccounts}
+          className="flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-body-sm text-primary transition-colors hover:bg-surface-high"
+        >
+          <Icon name="link" size={17} className="text-muted" />
+          Connected Accounts
+          <span className="ml-auto text-label-sm text-muted">{accounts.length}</span>
+        </button>
+        <button
+          type="button"
+          onClick={onOpenSettings}
+          className="flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-body-sm text-primary transition-colors hover:bg-surface-high"
+        >
+          <Icon name="settings" size={17} className="text-muted" />
+          Settings
+        </button>
+        <button
+          type="button"
+          onClick={onOpenHelp}
+          className="flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-body-sm text-primary transition-colors hover:bg-surface-high"
+        >
+          <Icon name="help" size={17} className="text-muted" />
+          Help
+        </button>
       </div>
     </div>
   )

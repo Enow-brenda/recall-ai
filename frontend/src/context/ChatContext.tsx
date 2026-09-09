@@ -6,6 +6,7 @@ import {
   useMemo,
   useReducer,
   useRef,
+  useState,
 } from 'react'
 import type { ReactNode } from 'react'
 import type { AccountSummary, ChatMessage, Conversation } from '../api/types'
@@ -132,6 +133,9 @@ function reducer(state: ChatState, action: ChatAction): ChatState {
 }
 
 interface ChatContextValue extends ChatState {
+  togglingAccountId: string | null
+  creatingConversation: boolean
+  selectingConversationId: string | null
   refreshAccounts: () => Promise<void>
   refreshConversations: () => Promise<void>
   selectConversation: (id: string) => Promise<void>
@@ -147,6 +151,9 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(reducer, initialState)
   const stateRef = useRef(state)
   stateRef.current = state
+  const [togglingAccountId, setTogglingAccountId] = useState<string | null>(null)
+  const [creatingConversation, setCreatingConversation] = useState(false)
+  const [selectingConversationId, setSelectingConversationId] = useState<string | null>(null)
 
   const refreshAccounts = useCallback(async () => {
     const accounts = await api.accounts.list()
@@ -159,13 +166,23 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const selectConversation = useCallback(async (id: string) => {
-    const messages = await api.conversations.get(id)
-    dispatch({ type: 'conversation/select', id, messages })
+    setSelectingConversationId(id)
+    try {
+      const messages = await api.conversations.get(id)
+      dispatch({ type: 'conversation/select', id, messages })
+    } finally {
+      setSelectingConversationId(null)
+    }
   }, [])
 
   const newChat = useCallback(async () => {
-    const conversation = await api.conversations.create()
-    dispatch({ type: 'conversation/new', conversation })
+    setCreatingConversation(true)
+    try {
+      const conversation = await api.conversations.create()
+      dispatch({ type: 'conversation/new', conversation })
+    } finally {
+      setCreatingConversation(false)
+    }
   }, [])
 
   const deleteConversation = useCallback(async (id: string) => {
@@ -174,8 +191,13 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const toggleAccount = useCallback(async (id: string, _checked: boolean) => {
-    const account = await api.accounts.toggle(id)
-    dispatch({ type: 'accounts/toggle', account })
+    setTogglingAccountId(id)
+    try {
+      const account = await api.accounts.toggle(id)
+      dispatch({ type: 'accounts/toggle', account })
+    } finally {
+      setTogglingAccountId(null)
+    }
   }, [])
 
   const sendMessage = useCallback(async (content: string) => {
@@ -240,6 +262,9 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     () => ({
       ...state,
       activeMessages,
+      togglingAccountId,
+      creatingConversation,
+      selectingConversationId,
       refreshAccounts,
       refreshConversations,
       selectConversation,
@@ -251,6 +276,9 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     [
       state,
       activeMessages,
+      togglingAccountId,
+      creatingConversation,
+      selectingConversationId,
       refreshAccounts,
       refreshConversations,
       selectConversation,

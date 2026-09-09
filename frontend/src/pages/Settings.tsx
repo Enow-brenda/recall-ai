@@ -101,6 +101,7 @@ export function Settings() {
                 </span>
                 <ToggleSwitch
                   checked={acc.is_active}
+                  busy={chat.togglingAccountId === acc.id}
                   onChange={(v) => void chat.toggleAccount(acc.id, v)}
                   label={`Toggle ${acc.display_label}`}
                 />

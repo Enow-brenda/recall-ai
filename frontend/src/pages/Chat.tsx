@@ -1,7 +1,6 @@
 import { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { useChat } from '../context/ChatContext'
-import { useUI } from '../context/UIContext'
 import { ChatMessage } from '../components/ChatMessage'
 import { ConversationInput } from '../components/ConversationInput'
 import { Icon } from '../components/Icon'
@@ -16,7 +15,6 @@ const SUGGESTIONS = [
 
 export function Chat() {
   const { conversationId } = useParams()
-  const ui = useUI()
   const chat = useChat()
 
   useEffect(() => {
@@ -32,32 +30,6 @@ export function Chat() {
 
   return (
     <div className="flex h-screen flex-col">
-      {/* Filter bar */}
-      <div className="hide-scrollbar flex items-center gap-2 overflow-x-auto border-b border-border bg-card/70 px-4 py-2.5 backdrop-blur">
-        <span
-          className={`shrink-0 rounded-full border px-3 py-1 text-label-md transition-colors ${
-            'text-primary border-transparent bg-primary text-on-primary'
-          }`}
-        >
-          All Sources
-        </span>
-        {chat.accounts.map((acc) => (
-          <span
-            key={acc.id}
-            className="shrink-0 rounded-full border border-border bg-surface px-3 py-1 text-label-md text-muted"
-          >
-            {acc.display_label}
-          </span>
-        ))}
-        <button
-          type="button"
-          onClick={() => ui.openModal('add-account')}
-          className="ml-auto flex shrink-0 items-center gap-1 rounded-full border border-dashed border-border px-3 py-1 text-label-md text-muted transition-colors hover:border-accent hover:text-accent"
-        >
-          <Icon name="add" size={14} /> Add source
-        </button>
-      </div>
-
       {/* Message area */}
       <div className="hide-scrollbar flex-1 overflow-y-auto px-4 py-6 md:px-8">
         <div className="mx-auto w-full max-w-[800px] space-y-6">

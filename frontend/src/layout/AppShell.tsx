@@ -37,8 +37,11 @@ export function AppShell({ children }: { children: ReactNode }) {
         conversations={chat.conversations}
         activeConversationId={chat.activeConversationId ?? null}
         accounts={chat.accounts}
-        onNewChat={() => navigate('/chat')}
-        onSelectConversation={(id) => navigate(`/chat/${id}`)}
+        togglingAccountId={chat.togglingAccountId}
+        creatingConversation={chat.creatingConversation}
+        selectingConversationId={chat.selectingConversationId}
+        onNewChat={() => void chat.newChat()}
+        onSelectConversation={(id) => void chat.selectConversation(id)}
         onToggleAccount={(id, checked) => void chat.toggleAccount(id, checked)}
         onOpenAccounts={() => ui.openModal('accounts')}
         onOpenSettings={() => navigate('/settings')}
@@ -59,6 +62,15 @@ export function AppShell({ children }: { children: ReactNode }) {
             <Icon name="menu" size={22} />
           </button>
           <h1 className="truncate text-headline-sm font-semibold text-primary">{title}</h1>
+          {!isSettings && (
+            <button
+              type="button"
+              onClick={() => ui.openModal('add-account')}
+              className="hidden shrink-0 items-center gap-1 rounded-full border border-dashed border-border px-3 py-1 text-label-md text-muted transition-colors hover:border-accent hover:text-accent sm:flex"
+            >
+              <Icon name="add" size={14} /> Add source
+            </button>
+          )}
         </div>
 
         <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">

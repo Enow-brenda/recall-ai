@@ -1,6 +1,5 @@
-import type { ChatMessage as ChatMessageType } from '../api/types'
+import type { ChatMessage as ChatMessageType, Source } from '../api/types'
 import { BotAvatar } from './Logo'
-import { SourceChip } from './SourceChip'
 import { Icon } from './Icon'
 import Markdown from 'react-markdown'
 
@@ -42,16 +41,44 @@ export function ChatMessage({ message, streaming = false }: ChatMessageProps) {
           </div>
         </div>
         {message.sources && message.sources.length > 0 && (
-          <div className="flex flex-wrap items-center gap-1.5">
+          <div>
             <span className="flex items-center gap-1 text-label-sm uppercase tracking-wider text-muted">
               <Icon name="fact_check" size={14} /> Sources
             </span>
-            {message.sources.map((s, i) => (
-              <SourceChip key={`${s.ref_id}-${i}`} source={s} />
-            ))}
+            <ol className="mt-1.5 space-y-1">
+              {message.sources.map((s, i) => (
+                <SourceRow key={`${s.ref_id}-${i}`} index={i} source={s} />
+              ))}
+            </ol>
           </div>
         )}
       </div>
     </div>
+  )
+}
+
+const SOURCE_ICONS: Record<Source['type'], string> = {
+  email: 'mail',
+  attachment: 'description',
+  link: 'link',
+}
+
+function SourceRow({ index, source }: { index: number; source: Source }) {
+  const label =
+    source.subject ??
+    (source.type === 'attachment' ? source.snippet : new URL(source.url ?? '', 'https://recall.ai').hostname)
+  const Wrapper = source.url ? 'a' : 'div'
+
+  return (
+    <Wrapper
+      {...(source.url ? { href: source.url, target: '_blank', rel: 'noreferrer' } : {})}
+      className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-body-sm text-primary transition-colors hover:bg-surface-low"
+      title={source.snippet}
+    >
+      <span className="w-16 shrink-0 text-label-sm text-muted">Source {index + 1}</span>
+      <Icon name={SOURCE_ICONS[source.type]} size={14} className="shrink-0 text-accent" />
+      <span className="min-w-0 flex-1 truncate">{label}</span>
+      {source.url && <Icon name="open_in_new" size={12} className="shrink-0 text-muted" />}
+    </Wrapper>
   )
 }
