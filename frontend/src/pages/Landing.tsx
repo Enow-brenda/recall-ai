@@ -1,3 +1,5 @@
+import { useState } from 'react'
+import type { FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { USE_MOCK_API } from '../api/client'
 import { Icon } from '../components/Icon'
@@ -38,28 +40,38 @@ const PLANS = [
     price: '$0',
     period: '/forever',
     cta: 'Get started',
+    disabled: false,
     highlighted: false,
-    features: ['25 questions / day', '1 connected account', 'Full source citations', 'Community support'],
+    features: ['50 queries / month', '5 GB storage', 'Basic conversational search', 'Full source citations'],
   },
   {
     name: 'Pro',
     price: '$12',
     period: '/month',
     cta: 'Upgrade to Pro',
+    disabled: true,
     highlighted: true,
-    features: ['Unlimited questions', 'Multiple Gmail accounts', 'Priority indexing speed', '50 GB memory storage', 'Email support < 24h'],
+    features: ['Unlimited queries', '100 GB storage', 'Advanced document parsing', 'Priority support'],
   },
 ]
 
 const SOURCES = [
   { key: 'gmail', label: 'Gmail', icon: 'mail', now: true },
-  { key: 'whatsapp', label: 'WhatsApp', icon: 'chat', now: false },
-  { key: 'slack', label: 'Slack', icon: 'forum', now: false },
+  { key: 'whatsapp', label: 'WhatsApp', icon: 'forum', now: false },
+  { key: 'slack', label: 'Slack', icon: 'tag', now: false },
   { key: 'sms', label: 'SMS', icon: 'sms', now: false },
+]
+
+const NAV_LINKS = [
+  { label: 'Features', href: '#features' },
+  { label: 'Security', href: '#security' },
+  { label: 'Pricing', href: '#pricing' },
 ]
 
 export function Landing() {
   const navigate = useNavigate()
+  const [contact, setContact] = useState({ name: '', email: '', message: '' })
+  const [sent, setSent] = useState(false)
 
   const goToApp = () => {
     if (USE_MOCK_API) {
@@ -70,20 +82,42 @@ export function Landing() {
     }
   }
 
+  const onSubmit = (e: FormEvent) => {
+    e.preventDefault()
+    setSent(true)
+    setContact({ name: '', email: '', message: '' })
+    window.setTimeout(() => setSent(false), 4000)
+  }
+
   return (
     <div className="min-h-screen bg-surface text-primary">
       {/* Nav */}
       <header className="sticky top-0 z-20 border-b border-border bg-surface/90 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 md:px-8">
           <Logo text="Recall" tagline="Intelligent memory" />
+          <nav className="hidden items-center gap-6 md:flex">
+            {NAV_LINKS.map((l) => (
+              <a
+                key={l.href}
+                href={l.href}
+                className="text-body-sm text-muted transition-colors hover:text-primary"
+              >
+                {l.label}
+              </a>
+            ))}
+          </nav>
           <div className="flex items-center gap-3">
-            <a href="#pricing" className="hidden text-body-sm text-muted transition-colors hover:text-primary md:block">
-              Pricing
-            </a>
             <button
               type="button"
               onClick={goToApp}
-              className="rounded-lg bg-accent px-4 py-2 text-label-md font-medium text-on-accent shadow-card transition-colors hover:bg-accent-hover"
+              className="rounded-lg border border-border bg-card px-4 py-2 text-label-md text-primary transition-colors hover:bg-surface-low"
+            >
+              Sign In
+            </button>
+            <button
+              type="button"
+              onClick={goToApp}
+              className="hidden rounded-lg bg-accent px-4 py-2 text-label-md font-medium text-on-accent shadow-card transition-colors hover:bg-accent-hover sm:block"
             >
               Connect Gmail
             </button>
@@ -92,17 +126,18 @@ export function Landing() {
       </header>
 
       {/* Hero */}
-      <section className="mx-auto max-w-6xl px-4 pt-16 pb-14 text-center md:px-8 md:pt-24">
+      <section className="mx-auto max-w-6xl px-4 pt-16 pb-10 text-center md:px-8 md:pt-24">
         <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1 text-label-sm uppercase tracking-wider text-muted">
-          <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+          <Icon name="graphic_eq" size={14} className="text-accent" filled />
           AI Memory for your inbox
         </span>
         <h1 className="mx-auto mt-6 max-w-3xl text-display-lg-mobile font-bold tracking-tight md:text-display-lg">
-          Your Inbox <span className="text-accent">Remembers</span>
+          Your Inbox Remembers. <br />
+          <span className="text-accent">You Don't Have To.</span>
         </h1>
         <p className="mx-auto mt-5 max-w-2xl text-body-lg text-muted">
-          Recall is a chat-based memory layer for your email. Ask questions in plain English
-          and get instant, cited answers pulled from everything you've received.
+          Recall is a chat-based memory layer for your email. Ask plain questions, get exact answers
+          with <span className="font-medium text-accent">verified sources</span> instantly.
         </p>
         <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <button
@@ -110,24 +145,75 @@ export function Landing() {
             onClick={goToApp}
             className="flex w-full items-center justify-center gap-2 rounded-lg bg-accent px-6 py-3 text-body-md font-medium text-on-accent shadow-card transition-colors hover:bg-accent-hover sm:w-auto"
           >
-            <Icon name="google" size={18} />
+            <Icon name="mail" size={18} />
             Connect Gmail
           </button>
-          <button
-            type="button"
-            onClick={() => navigate('/chat')}
+          <a
+            href="#interface"
             className="w-full rounded-lg border border-border bg-card px-6 py-3 text-body-md text-primary transition-colors hover:bg-surface-low sm:w-auto"
           >
             See it in action
-          </button>
+          </a>
         </div>
-        <p className="mt-5 flex items-center justify-center gap-1.5 text-label-sm text-muted">
-          <Icon name="lock" size={14} /> Read-only access. You stay in control.
-        </p>
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-3 opacity-80">
+          <span className="flex items-center gap-1.5 text-label-sm text-muted">
+            <Icon name="lock" size={14} /> Read-only access
+          </span>
+          <span className="hidden h-4 w-px bg-border sm:block" />
+          <span className="flex items-center gap-1.5 text-label-sm text-muted">
+            <Icon name="verified_user" size={14} /> Google OAuth Secured
+          </span>
+        </div>
+      </section>
+
+      {/* Interface mockup */}
+      <section id="interface" className="mx-auto max-w-6xl px-4 pb-16 md:px-8">
+        <div className="mx-auto max-w-[800px] overflow-hidden rounded-xl border border-border bg-card text-left shadow-overlay">
+          <div className="flex items-center gap-3 border-b border-border bg-surface px-4 py-3">
+            <span className="flex gap-1.5">
+              <span className="h-2.5 w-2.5 rounded-full bg-neutral/40" />
+              <span className="h-2.5 w-2.5 rounded-full bg-neutral/40" />
+              <span className="h-2.5 w-2.5 rounded-full bg-neutral/40" />
+            </span>
+            <span className="text-label-sm text-muted">Recall Interface</span>
+          </div>
+          <div className="flex flex-col gap-4 bg-surface p-5 sm:p-7">
+            <div className="flex justify-end">
+              <div className="max-w-[80%] rounded-lg rounded-tr-none bg-primary px-4 py-2.5 text-body-md text-on-primary">
+                What did Sarah say about the Q3 budget requirements?
+              </div>
+            </div>
+            <div className="flex justify-start">
+              <div className="max-w-[90%] rounded-lg rounded-tl-none border border-border bg-card px-4 py-3 shadow-card">
+                <p className="text-body-md text-primary">
+                  Sarah indicated that the Q3 budget needs to prioritize{' '}
+                  <span className="font-medium text-accent">cloud infrastructure upgrades</span> and a 15% allocation
+                  for new marketing channels.
+                </p>
+                <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-border pt-3">
+                  <span className="text-label-sm uppercase tracking-wider text-muted">Sources</span>
+                  <span className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface px-2 py-1 text-label-md text-primary">
+                    <Icon name="description" size={13} className="text-accent" />
+                    Q3 Planning Thread — Oct 12
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 rounded-full border border-border bg-card py-1.5 pl-2 pr-1.5 shadow-card">
+              <span className="flex h-8 w-8 items-center justify-center rounded-full text-muted">
+                <Icon name="attach_file" size={18} />
+              </span>
+              <span className="flex-1 text-body-md text-neutral">Ask about your email…</span>
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-accent text-on-accent">
+                <Icon name="arrow_upward" size={18} />
+              </span>
+            </div>
+          </div>
+        </div>
       </section>
 
       {/* Features */}
-      <section className="border-y border-border bg-card/60">
+      <section id="features" className="border-y border-border bg-card/60">
         <div className="mx-auto grid max-w-6xl gap-6 px-4 py-16 md:grid-cols-2 md:px-8 lg:grid-cols-4">
           {FEATURES.map((f) => (
             <div key={f.title} className="rounded-lg border border-border bg-card p-6 shadow-card">
@@ -155,8 +241,54 @@ export function Landing() {
         </div>
       </section>
 
+      {/* Sources */}
+      <section className="mx-auto max-w-6xl px-4 pb-16 md:px-8">
+        <h2 className="text-center text-headline-md">One memory, many sources</h2>
+        <div className="mx-auto mt-8 flex max-w-xl flex-wrap items-center justify-center gap-3">
+          {SOURCES.map((s) => (
+            <span
+              key={s.key}
+              className={`flex items-center gap-2 rounded-full border px-4 py-2 text-body-sm ${
+                s.now ? 'border-border bg-card text-primary' : 'border-border bg-surface-low text-muted'
+              }`}
+            >
+              <Icon name={s.icon} size={16} className={s.now ? 'text-accent' : 'text-neutral'} />
+              {s.label}
+              {s.now && (
+                <span className="text-label-sm uppercase tracking-wider text-success">· Live</span>
+              )}
+            </span>
+          ))}
+        </div>
+      </section>
+
+      {/* Security */}
+      <section id="security" className="border-y border-border bg-card/60">
+        <div className="mx-auto max-w-6xl px-4 py-16 md:px-8">
+          <h2 className="text-center text-headline-md">Your memory, locked down</h2>
+          <p className="mx-auto mt-2 max-w-xl text-center text-body-sm text-muted">
+            Recall never writes to your mailbox and never trains on your data.
+          </p>
+          <div className="mx-auto mt-10 grid max-w-3xl gap-6 sm:grid-cols-3">
+            {[
+              { icon: 'lock', title: 'Read-only access', body: 'We only ever read; you keep full control of your account.' },
+              { icon: 'verified_user', title: 'Google OAuth', body: 'Secure sign-in with Google — no passwords stored.' },
+              { icon: 'shield', title: 'Your data stays yours', body: 'Indexed memory is private and can be deleted anytime.' },
+            ].map((s) => (
+              <div key={s.title} className="rounded-lg border border-border bg-card p-6 text-center shadow-card">
+                <span className="mx-auto flex h-10 w-10 items-center justify-center rounded-lg bg-accent-soft">
+                  <Icon name={s.icon} size={20} className="text-accent" />
+                </span>
+                <h3 className="mt-3 text-headline-sm">{s.title}</h3>
+                <p className="mt-2 text-body-sm leading-relaxed text-muted">{s.body}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Pricing */}
-      <section id="pricing" className="border-t border-border bg-card/60 py-16">
+      <section id="pricing" className="py-16">
         <div className="mx-auto max-w-6xl px-4 md:px-8">
           <h2 className="text-center text-headline-md">Simple pricing</h2>
           <p className="mx-auto mt-2 max-w-xl text-center text-body-sm text-muted">
@@ -166,7 +298,9 @@ export function Landing() {
             {PLANS.map((plan) => (
               <div
                 key={plan.name}
-                className={`rounded-[8px] border p-6 shadow-card ${plan.highlighted ? 'border-accent bg-card ring-1 ring-accent' : 'border-border bg-card'}`}
+                className={`rounded-[8px] border p-6 shadow-card ${
+                  plan.highlighted ? 'border-accent bg-card ring-1 ring-accent' : 'border-border bg-card'
+                }`}
               >
                 {plan.highlighted && (
                   <span className="inline-block rounded-full bg-accent-soft px-3 py-1 text-label-sm uppercase tracking-wider text-accent">
@@ -188,39 +322,92 @@ export function Landing() {
                 </ul>
                 <button
                   type="button"
+                  disabled={plan.disabled}
+                  title={plan.disabled ? 'Upgrade coming soon' : undefined}
                   onClick={goToApp}
                   className={`mt-7 w-full rounded-lg py-2.5 text-label-md font-medium transition-colors ${
                     plan.highlighted
-                      ? 'bg-accent text-on-accent hover:bg-accent-hover'
+                      ? plan.disabled
+                        ? 'cursor-not-allowed bg-surface-low text-muted'
+                        : 'bg-accent text-on-accent hover:bg-accent-hover'
                       : 'border border-border bg-card text-primary hover:bg-surface-low'
                   }`}
                 >
                   {plan.cta}
                 </button>
+                {plan.disabled && (
+                  <p className="mt-2 text-center text-label-sm text-muted">Coming soon</p>
+                )}
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Sources */}
-      <section className="mx-auto max-w-6xl px-4 py-16 md:px-8">
-        <h2 className="text-center text-headline-md">One memory, many sources</h2>
-        <div className="mx-auto mt-8 flex max-w-xl flex-wrap items-center justify-center gap-3">
-          {SOURCES.map((s) => (
-            <span
-              key={s.key}
-              className={`flex items-center gap-2 rounded-full border px-4 py-2 text-body-sm ${
-                s.now ? 'border-border bg-card text-primary' : 'border-border bg-surface-low text-muted'
-              }`}
+      {/* Leave a Message */}
+      <section id="contact" className="mx-auto max-w-6xl px-4 pb-16 md:px-8">
+        <div className="mx-auto max-w-[600px] rounded-xl border border-border bg-card p-6 shadow-card md:p-8">
+          <div className="mb-6 text-center">
+            <h2 className="text-headline-md">Leave a Message</h2>
+            <p className="mt-1.5 text-body-md text-muted">
+              Have questions or need support? We'd love to hear from you.
+            </p>
+          </div>
+          <form onSubmit={onSubmit} className="space-y-4">
+            <div>
+              <label htmlFor="contact-name" className="mb-1 block text-label-sm text-muted">
+                Name
+              </label>
+              <input
+                id="contact-name"
+                type="text"
+                required
+                placeholder="Jane Doe"
+                value={contact.name}
+                onChange={(e) => setContact((c) => ({ ...c, name: e.target.value }))}
+                className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-body-md text-primary outline-none transition-colors placeholder:text-neutral focus:border-accent focus:ring-1 focus:ring-accent"
+              />
+            </div>
+            <div>
+              <label htmlFor="contact-email" className="mb-1 block text-label-sm text-muted">
+                Email
+              </label>
+              <input
+                id="contact-email"
+                type="email"
+                required
+                placeholder="jane@example.com"
+                value={contact.email}
+                onChange={(e) => setContact((c) => ({ ...c, email: e.target.value }))}
+                className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-body-md text-primary outline-none transition-colors placeholder:text-neutral focus:border-accent focus:ring-1 focus:ring-accent"
+              />
+            </div>
+            <div>
+              <label htmlFor="contact-message" className="mb-1 block text-label-sm text-muted">
+                Message
+              </label>
+              <textarea
+                id="contact-message"
+                required
+                rows={4}
+                placeholder="How can we help?"
+                value={contact.message}
+                onChange={(e) => setContact((c) => ({ ...c, message: e.target.value }))}
+                className="w-full resize-none rounded-lg border border-border bg-surface px-3 py-2 text-body-md text-primary outline-none transition-colors placeholder:text-neutral focus:border-accent focus:ring-1 focus:ring-accent"
+              />
+            </div>
+            <button
+              type="submit"
+              className="w-full rounded-lg bg-primary py-2.5 text-label-md font-medium text-on-primary transition-colors hover:bg-primary-dim"
             >
-              <Icon name={s.icon} size={16} className={s.now ? 'text-accent' : 'text-neutral'} />
-              {s.label}
-              {s.now && (
-                <span className="text-label-sm uppercase tracking-wider text-success">· Live</span>
-              )}
-            </span>
-          ))}
+              Send Message
+            </button>
+            {sent && (
+              <p className="text-center text-label-md text-success">
+                Thanks — your message has been received.
+              </p>
+            )}
+          </form>
         </div>
       </section>
 
@@ -235,7 +422,7 @@ export function Landing() {
           onClick={goToApp}
           className="mt-7 inline-flex items-center gap-2 rounded-lg bg-accent px-6 py-3 text-body-md font-medium text-on-accent transition-colors hover:bg-accent-hover"
         >
-          <Icon name="google" size={18} />
+          <Icon name="mail" size={18} />
           Connect Gmail
         </button>
       </section>
@@ -247,7 +434,9 @@ export function Landing() {
           <div className="flex items-center gap-6">
             <span className="cursor-pointer transition-colors hover:text-primary">Privacy</span>
             <span className="cursor-pointer transition-colors hover:text-primary">Terms</span>
-            <span className="cursor-pointer transition-colors hover:text-primary">Contact</span>
+            <a href="#contact" className="transition-colors hover:text-primary">
+              Contact
+            </a>
           </div>
         </div>
       </footer>
