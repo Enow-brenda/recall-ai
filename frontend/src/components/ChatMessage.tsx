@@ -1,5 +1,5 @@
 import type { ChatMessage as ChatMessageType } from '../api/types'
-import { LogoMark } from './Logo'
+import { BotAvatar } from './Logo'
 import { SourceChip } from './SourceChip'
 import { Icon } from './Icon'
 import Markdown from 'react-markdown'
@@ -24,9 +24,7 @@ export function ChatMessage({ message, streaming = false }: ChatMessageProps) {
 
   return (
     <div className="flex gap-3">
-      <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-surface-low">
-        <LogoMark className="h-6 w-6" />
-      </div>
+      <BotAvatar size={32} iconSize={18} />
       <div className="min-w-0 flex-1 space-y-2.5">
         <div className="flex items-center gap-2">
           <span className="text-label-sm uppercase tracking-wider text-muted">Recall</span>

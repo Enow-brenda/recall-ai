@@ -5,7 +5,7 @@ import { useUI } from '../context/UIContext'
 import { ChatMessage } from '../components/ChatMessage'
 import { ConversationInput } from '../components/ConversationInput'
 import { Icon } from '../components/Icon'
-import { LogoMark } from '../components/Logo'
+import { BotAvatar } from '../components/Logo'
 
 const SUGGESTIONS = [
   'What was the invoice amount from Safi Studio?',
@@ -88,9 +88,7 @@ function IndexingState() {
   return (
     <div className="flex min-h-[50vh] flex-col items-center justify-center text-center">
       <div className="relative">
-        <span className="flex h-16 w-16 items-center justify-center rounded-2xl bg-accent-soft">
-          <LogoMark className="h-10 w-10" />
-        </span>
+        <BotAvatar size={64} iconSize={32} />
         <span className="absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full bg-accent text-on-accent">
           <Icon name="sync" size={14} className="animate-spin" />
         </span>
@@ -115,9 +113,7 @@ function IndexingState() {
 function EmptyState({ onSuggestion }: { onSuggestion: (s: string) => void }) {
   return (
     <div className="flex min-h-[50vh] flex-col items-center justify-center text-center">
-      <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-accent-soft">
-        <LogoMark className="h-9 w-9" />
-      </span>
+      <BotAvatar size={56} iconSize={28} />
       <h2 className="mt-5 text-headline-md">What would you like to recall?</h2>
       <p className="mt-1.5 text-body-sm text-muted">
         Start typing or pick a suggestion below.
@@ -141,9 +137,7 @@ function EmptyState({ onSuggestion }: { onSuggestion: (s: string) => void }) {
 function PlaceholderBubble() {
   return (
     <div className="flex gap-3">
-      <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-surface-low">
-        <LogoMark className="h-6 w-6" />
-      </div>
+      <BotAvatar size={32} iconSize={18} />
       <div className="flex-1 space-y-2">
         <span className="text-label-sm uppercase tracking-wider text-muted">Recall is thinking</span>
         <div className="rounded-lg border border-border bg-card px-4 py-3">

@@ -1,11 +1,10 @@
-import type { AccountSummary, Conversation, UserProfile } from '../api/types'
+import type { AccountSummary, Conversation } from '../api/types'
 import { Icon } from './Icon'
-import { Logo, LogoMark } from './Logo'
+import { Logo } from './Logo'
 import { ToggleSwitch } from './ToggleSwitch'
 import { useState } from 'react'
 
 interface SidebarProps {
-  user: UserProfile | null
   conversations: Conversation[]
   activeConversationId: string | null
   accounts: AccountSummary[]
@@ -14,19 +13,17 @@ interface SidebarProps {
   onToggleAccount: (id: string, checked: boolean) => void
   onOpenAccounts: () => void
   onOpenSettings: () => void
-  onLogout: () => void
+  onOpenHelp: () => void
   open: boolean
   onClose: () => void
 }
 
-const SECTION_ICONS: Record<string, string> = {
-  recents: 'history',
-  starred: 'star',
-  people: 'group',
-}
+const COMING_SOON = [
+  { key: 'whatsapp', label: 'WhatsApp', icon: 'forum' },
+  { key: 'slack', label: 'Slack', icon: 'tag' },
+]
 
 export function Sidebar({
-  user,
   conversations,
   activeConversationId,
   accounts,
@@ -35,7 +32,7 @@ export function Sidebar({
   onToggleAccount,
   onOpenAccounts,
   onOpenSettings,
-  onLogout,
+  onOpenHelp,
   open,
   onClose,
 }: SidebarProps) {
@@ -45,12 +42,13 @@ export function Sidebar({
   const filtered = conversations.filter((c) =>
     c.title.toLowerCase().includes(query.toLowerCase()),
   )
+  const groups = groupByDay(filtered)
 
   const content = (
     <div className="flex h-full flex-col bg-surface-low p-4">
       {/* Brand */}
       <div className="flex items-center justify-between">
-        <Logo text="Recall" tagline="Your inbox, remembered" />
+        <Logo text="Recall AI" tagline="Your inbox, remembered" />
         <button
           type="button"
           onClick={onClose}
@@ -65,14 +63,14 @@ export function Sidebar({
       <button
         type="button"
         onClick={onNewChat}
-        className="mt-5 flex w-full items-center justify-center gap-2 rounded-full bg-accent py-2.5 text-label-md font-medium text-on-accent shadow-card transition-colors hover:bg-accent-hover"
+        className="mt-4.5 flex w-full items-center justify-center gap-2 rounded-full bg-accent py-2.5 text-label-md font-medium text-on-accent shadow-card transition-colors hover:bg-accent-hover"
       >
         <Icon name="add" size={18} />
         New Memory
       </button>
 
       {/* Search */}
-      <div className="relative mt-5">
+      <div className="relative mt-4">
         <Icon
           name="search"
           size={16}
@@ -87,62 +85,64 @@ export function Sidebar({
         />
       </div>
 
-      {/* Scrollable nav */}
-      <nav className="hide-scrollbar mt-5 flex-1 overflow-y-auto">
-        <ul className="space-y-0.5">
-          {Object.entries(SECTION_ICONS).map(([key, icon]) => (
-            <li key={key}>
-              <NavRow icon={icon} label={key === 'recents' ? 'Recents' : key === 'starred' ? 'Starred' : 'People'} />
-            </li>
-          ))}
-        </ul>
-
-        {/* Conversations */}
-        <p className="mt-5 px-2 text-label-sm uppercase tracking-wider text-muted">Conversations</p>
-        <ul className="mt-1.5 space-y-0.5">
+      {/* Conversations grouped by day + Sources (pinned) */}
+      <nav className="hide-scrollbar mt-4 flex flex-1 flex-col overflow-y-auto">
+        <div className="flex-1">
           {filtered.length === 0 && (
-            <li className="px-2 py-2 text-body-sm text-muted">No conversations yet</li>
+            <p className="px-2 py-2 text-body-sm text-muted">No conversations yet</p>
           )}
-          {filtered.map((c) => (
-            <li key={c.id}>
-              <button
-                type="button"
-                onClick={() => {
-                  onSelectConversation(c.id)
-                  onClose()
-                }}
-                className={`flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left text-body-sm transition-colors ${
-                  activeConversationId === c.id
-                    ? 'bg-primary text-on-primary'
-                    : 'text-primary hover:bg-surface-high'
-                }`}
-              >
-                <Icon name="chat_bubble_outline" size={16} className="shrink-0 text-muted" />
-                <span className="truncate">{c.title}</span>
-              </button>
-            </li>
+          {groups.map((group) => (
+            <div key={group.label} className="mb-3">
+              <p className="px-2 text-label-sm uppercase tracking-wider text-muted">{group.label}</p>
+              <ul className="mt-1 space-y-0.5">
+                {group.items.map((c) => (
+                  <li key={c.id}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onSelectConversation(c.id)
+                        onClose()
+                      }}
+                      className={`flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left text-body-sm transition-colors ${
+                        activeConversationId === c.id
+                          ? 'bg-primary text-on-primary'
+                          : 'text-primary hover:bg-surface-high'
+                      }`}
+                    >
+                      <Icon
+                        name="chat_bubble"
+                        size={16}
+                        className="shrink-0 text-muted"
+                        filled={activeConversationId === c.id}
+                      />
+                      <span className="truncate">{c.title}</span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
           ))}
-        </ul>
+        </div>
 
-        {/* Sources */}
-        <div className="mt-5">
+        {/* Sources accordion — pinned to bottom of scroll area */}
+        <div className="mt-auto">
           <button
             type="button"
             onClick={() => setSourcesOpen((v) => !v)}
-            className="flex w-full items-center justify-between px-2 text-label-sm uppercase tracking-wider text-muted"
+            className="flex w-full items-center justify-between rounded-lg px-2 py-1.5 text-label-sm uppercase tracking-wider text-muted transition-colors hover:bg-surface-high"
           >
             Sources
-            <Icon name={sourcesOpen ? 'expand_less' : 'expand_more'} size={16} />
+            <Icon name={sourcesOpen ? 'expand_more' : 'expand_less'} size={16} className="transition-transform" />
           </button>
           {sourcesOpen && (
-            <ul className="mt-1.5 space-y-0.5">
+            <ul className="mt-1 space-y-0.5">
               {accounts.map((acc) => (
                 <li
                   key={acc.id}
-                  className="flex items-center justify-between gap-2 rounded-lg px-2 py-2"
+                  className="flex items-center justify-between gap-2 rounded-lg px-2 py-1.5"
                 >
                   <span className="flex min-w-0 items-center gap-2 text-body-sm text-primary">
-                    <Icon name="mail" size={16} className="shrink-0 text-accent" />
+                    <Icon name="mail" size={16} className="shrink-0" style={{ color: '#EA4335' }} />
                     <span className="truncate">{acc.display_label}</span>
                   </span>
                   <ToggleSwitch
@@ -152,56 +152,63 @@ export function Sidebar({
                   />
                 </li>
               ))}
+              {COMING_SOON.map((s) => (
+                <li
+                  key={s.key}
+                  className="flex items-center justify-between gap-2 rounded-lg px-2 py-1.5 opacity-60"
+                >
+                  <span className="flex min-w-0 items-center gap-2 text-body-sm text-primary">
+                    <Icon name={s.icon} size={16} className="shrink-0 text-muted" />
+                    <span className="truncate">{s.label}</span>
+                  </span>
+                  <span className="rounded-full bg-surface-high px-2 py-0.5 text-[10px] uppercase tracking-wide text-muted">
+                    Soon
+                  </span>
+                </li>
+              ))}
             </ul>
           )}
         </div>
       </nav>
 
       {/* Footer */}
-      <div className="mt-4 border-t border-border pt-3">
-        <button
-          type="button"
-          onClick={onOpenAccounts}
-          className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-body-sm text-primary transition-colors hover:bg-surface-high"
-        >
-          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-surface-high">
-            <Icon name="link" size={16} className="text-muted" />
-          </span>
-          Connected Accounts
-          <span className="ml-auto text-label-sm text-muted">{accounts.length}</span>
-        </button>
-        <button
-          type="button"
-          onClick={onOpenSettings}
-          className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-body-sm text-primary transition-colors hover:bg-surface-high"
-        >
-          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-surface-high">
-            <Icon name="settings" size={16} className="text-muted" />
-          </span>
-          Settings
-        </button>
-        <div className="mt-2 flex items-center gap-2 border-t border-border bg-surface px-2 py-2.5 pt-3">
-          {user?.profile_picture_url ? (
-            <img
-              src={user.profile_picture_url}
-              alt=""
-              className="h-8 w-8 rounded-full object-cover"
-            />
-          ) : (
-            <LogoMark className="h-8 w-8" />
-          )}
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-body-sm font-medium text-primary">{user?.name}</p>
-            <p className="truncate text-label-sm text-muted">{user?.primary_email}</p>
-          </div>
+      <div className="mt-4 border-t border-border pt-2.5">
+        <p className="px-2 text-label-sm uppercase tracking-wider text-muted">Connected Accounts</p>
+        <div className="mt-1 flex flex-col">
+          {accounts.map((acc) => (
+            <button
+              key={acc.id}
+              type="button"
+              onClick={onOpenAccounts}
+              className="flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-body-sm text-primary transition-colors hover:bg-surface-high"
+            >
+              <Icon name="mail" size={16} className="shrink-0 text-muted" />
+              <span className="min-w-0 flex-1 truncate text-left">{acc.display_label}</span>
+              <Icon
+                name={acc.is_active ? 'sync' : 'pause_circle'}
+                size={14}
+                className="shrink-0 text-muted"
+                filled
+              />
+            </button>
+          ))}
+        </div>
+        <div className="mt-1 space-y-0.5 border-t border-border pt-2">
           <button
             type="button"
-            onClick={onLogout}
-            className="flex h-8 w-8 items-center justify-center rounded text-muted transition-colors hover:bg-danger-soft hover:text-danger"
-            aria-label="Log out"
-            title="Log out"
+            onClick={onOpenSettings}
+            className="flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-body-sm text-primary transition-colors hover:bg-surface-high"
           >
-            <Icon name="logout" size={18} />
+            <Icon name="settings" size={17} className="text-muted" />
+            Settings
+          </button>
+          <button
+            type="button"
+            onClick={onOpenHelp}
+            className="flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-body-sm text-primary transition-colors hover:bg-surface-high"
+          >
+            <Icon name="help" size={17} className="text-muted" />
+            Help
           </button>
         </div>
       </div>
@@ -217,7 +224,7 @@ export function Sidebar({
       {/* Mobile drawer */}
       {open && (
         <div className="fixed inset-0 z-40 md:hidden">
-          <div className="absolute inset-0 bg-primary/40" onClick={onClose} />
+          <div className="absolute inset-0 bg-black/40" onClick={onClose} />
           <aside className="absolute inset-y-0 left-0 w-[300px] max-w-[85vw] border-r border-border shadow-overlay">
             {content}
           </aside>
@@ -227,14 +234,33 @@ export function Sidebar({
   )
 }
 
-function NavRow({ icon, label }: { icon: string; label: string }) {
-  return (
-    <button
-      type="button"
-      className="flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-body-sm text-primary transition-colors hover:bg-surface-high"
-    >
-      <Icon name={icon} size={17} className="text-muted" />
-      {label}
-    </button>
+type DayGroup = { label: string; items: Conversation[] }
+
+function groupByDay(conversations: Conversation[]): DayGroup[] {
+  const now = new Date()
+  const todayStart = startOfDay(now)
+  const yesterdayStart = new Date(todayStart.getTime() - 86_400_000)
+  const weekStart = new Date(todayStart.getTime() - 6 * 86_400_000)
+
+  const sorted = [...conversations].sort(
+    (a, b) => +new Date(b.last_modified_at) - +new Date(a.last_modified_at),
   )
+
+  const groups: Record<string, Conversation[]> = { Today: [], Yesterday: [], 'Previous 7 days': [], Older: [] }
+
+  for (const c of sorted) {
+    const d = startOfDay(new Date(c.last_modified_at)).getTime()
+    if (d >= todayStart.getTime()) groups['Today'].push(c)
+    else if (d >= yesterdayStart.getTime()) groups['Yesterday'].push(c)
+    else if (d >= weekStart.getTime()) groups['Previous 7 days'].push(c)
+    else groups['Older'].push(c)
+  }
+
+  return (['Today', 'Yesterday', 'Previous 7 days', 'Older'] as const)
+    .filter((label) => groups[label].length > 0)
+    .map((label) => ({ label, items: groups[label] }))
+}
+
+function startOfDay(d: Date): Date {
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate())
 }

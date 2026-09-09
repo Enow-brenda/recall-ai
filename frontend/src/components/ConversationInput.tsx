@@ -40,14 +40,14 @@ export function ConversationInput({
   }
 
   return (
-    <div className="mx-auto w-full max-w-[800px] px-4 pb-5 md:px-0">
-      <div className="flex items-end gap-2 rounded-[8px] border border-border bg-card px-3 py-2.5 transition-colors focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20">
+    <div className="mx-auto w-full max-w-[800px] px-4 pb-4 md:px-0">
+      <div className="flex items-end gap-2 rounded-full border border-border bg-card py-1.5 pl-1.5 pr-1.5 shadow-card transition-all focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20">
         <button
           type="button"
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded text-muted transition-colors hover:bg-surface-low hover:text-primary"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-muted transition-colors hover:bg-surface-low hover:text-primary"
           aria-label="Attach"
         >
-          <Icon name="add_circle_outline" size={20} />
+          <Icon name="attach_file" size={20} />
         </button>
         <textarea
           ref={textareaRef}
@@ -59,14 +59,14 @@ export function ConversationInput({
           onKeyDown={onKeyDown}
           placeholder={placeholder}
           rows={1}
-          className="max-h-40 min-h-9 flex-1 resize-none bg-transparent text-body-md text-primary placeholder-neutral outline-none"
+          className="max-h-40 min-h-9 flex-1 resize-none bg-transparent py-2 text-body-md text-primary placeholder-neutral outline-none"
         />
         <button
           type="button"
           onClick={submit}
           disabled={!canSend}
           aria-label="Send message"
-          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-all ${
+          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-all ${
             canSend
               ? 'bg-accent text-on-accent shadow-card hover:bg-accent-hover'
               : 'cursor-not-allowed bg-surface-low text-neutral'
@@ -75,6 +75,9 @@ export function ConversationInput({
           <Icon name="arrow_upward" size={20} />
         </button>
       </div>
+      <p className="mt-2 text-center text-label-sm text-muted">
+        Recall AI can make mistakes. Verify important information.
+      </p>
     </div>
   )
 }
