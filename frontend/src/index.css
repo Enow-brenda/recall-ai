@@ -1,0 +1,112 @@
+@import "tailwindcss";
+
+@theme {
+  /* Brand palette (from recall-project-spec / DESIGN.md) */
+  --color-primary: #0f172a;
+  --color-primary-dim: #1e293b;
+  --color-on-primary: #ffffff;
+
+  --color-accent: #ea580c;
+  --color-accent-hover: #c2410c;
+  --color-accent-soft: rgba(234, 88, 12, 0.1);
+  --color-on-accent: #ffffff;
+
+  --color-surface: #f8fafc;
+  --color-surface-low: #f1f5f9;
+  --color-surface-high: #e2e8f0;
+  --color-card: #ffffff;
+
+  --color-muted: #64748b;
+  --color-neutral: #94a3b8;
+  --color-border: #e2e8f0;
+
+  --color-danger: #dc2626;
+  --color-danger-soft: rgba(220, 38, 38, 0.08);
+  --color-success: #16a34a;
+
+  /* Typography scale (from DESIGN.md) */
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+
+  --text-display-lg: 36px;
+  --text-display-lg--line-height: 44px;
+  --text-display-lg--letter-spacing: -0.02em;
+  --text-display-lg--font-weight: 700;
+
+  --text-display-lg-mobile: 28px;
+  --text-display-lg-mobile--line-height: 34px;
+  --text-display-lg-mobile--font-weight: 700;
+
+  --text-headline-md: 24px;
+  --text-headline-md--line-height: 32px;
+  --text-headline-md--letter-spacing: -0.01em;
+  --text-headline-md--font-weight: 600;
+
+  --text-headline-sm: 20px;
+  --text-headline-sm--line-height: 28px;
+  --text-headline-sm--font-weight: 600;
+
+  --text-body-lg: 18px;
+  --text-body-lg--line-height: 28px;
+
+  --text-body-md: 16px;
+  --text-body-md--line-height: 24px;
+
+  --text-body-sm: 14px;
+  --text-body-sm--line-height: 20px;
+
+  --text-label-md: 14px;
+  --text-label-md--line-height: 16px;
+  --text-label-md--letter-spacing: 0.01em;
+  --text-label-md--font-weight: 500;
+
+  --text-label-sm: 12px;
+  --text-label-sm--line-height: 16px;
+  --text-label-sm--letter-spacing: 0.05em;
+  --text-label-sm--font-weight: 600;
+
+  /* Spacing rhythm (4px base) */
+  --spacing-gutter: 20px;
+
+  --shadow-card: 0 1px 3px 0 rgba(15, 23, 42, 0.06);
+  --shadow-overlay: 0 4px 24px -4px rgba(15, 23, 42, 0.16);
+}
+
+@layer base {
+  html {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  body {
+    margin: 0;
+    background-color: var(--color-surface);
+    color: var(--color-primary);
+  }
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-surface-high) transparent;
+  }
+}
+
+@layer utilities {
+  .material-symbols-outlined {
+    font-family: "Material Symbols Outlined";
+    font-weight: normal;
+    font-style: normal;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+  }
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
