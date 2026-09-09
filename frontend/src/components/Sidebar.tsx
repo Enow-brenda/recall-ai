@@ -91,114 +91,111 @@ export function Sidebar({
         />
       </div>
 
-      {/* Conversations grouped by day + Sources (pinned) */}
-      <nav className="hide-scrollbar mt-4 flex flex-1 flex-col overflow-y-auto">
-        <div className="flex-1">
-          {filtered.length === 0 && (
-            <p className="px-2 py-2 text-body-sm text-muted">No conversations yet</p>
-          )}
-          {groups.map((group) => (
-            <div key={group.label} className="mb-3">
-              <p className="px-2 text-label-sm uppercase tracking-wider text-muted">{group.label}</p>
-              <ul className="mt-1 space-y-0.5">
-                {group.items.map((c) => (
-                  <li key={c.id}>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        onSelectConversation(c.id)
-                        onClose()
-                      }}
-                      disabled={selectingConversationId === c.id}
-                      className={`flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left text-body-sm transition-colors disabled:cursor-wait ${
-                        activeConversationId === c.id
-                          ? 'bg-primary text-on-primary'
-                          : 'text-primary hover:bg-surface-high'
-                      }`}
-                    >
-                      <Icon
-                        name="chat_bubble"
-                        size={16}
-                        className="shrink-0 text-muted"
-                        filled={activeConversationId === c.id}
-                      />
-                      <span className="truncate">{c.title}</span>
-                      {selectingConversationId === c.id && (
-                        <Icon name="sync" size={14} className="ml-auto animate-spin shrink-0" />
-                      )}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-
-        {/* Sources accordion — pinned to bottom of scroll area */}
-        <div className="mt-auto">
-          <button
-            type="button"
-            onClick={() => setSourcesOpen((v) => !v)}
-            className="flex w-full items-center justify-between rounded-lg px-2 py-1.5 text-label-sm uppercase tracking-wider text-muted transition-colors hover:bg-surface-high"
-          >
-            Sources
-            <Icon
-              name={sourcesOpen ? 'expand_more' : 'expand_less'}
-              size={16}
-              className="transition-transform"
-            />
-          </button>
-          {sourcesOpen && (
+      {/* Conversations (scrollable) */}
+      <nav className="hide-scrollbar mt-4 flex-1 overflow-y-auto">
+        {filtered.length === 0 && (
+          <p className="px-2 py-2 text-body-sm text-muted">No conversations yet</p>
+        )}
+        {groups.map((group) => (
+          <div key={group.label} className="mb-3">
+            <p className="px-2 text-label-sm uppercase tracking-wider text-muted">{group.label}</p>
             <ul className="mt-1 space-y-0.5">
-              {accounts.map((acc) => (
-                <li
-                  key={acc.id}
-                  className="flex items-center justify-between gap-2 rounded-lg px-2 py-1.5"
-                >
-                  <span className="flex min-w-0 items-center gap-2 text-body-sm text-primary">
-                    <Icon name="mail" size={16} className="shrink-0" style={{ color: '#EA4335' }} />
-                    <span className="truncate">{acc.display_label}</span>
-                  </span>
-                  <ToggleSwitch
-                    checked={acc.is_active}
-                    busy={togglingAccountId === acc.id}
-                    onChange={(v) => onToggleAccount(acc.id, v)}
-                    label={`Toggle ${acc.display_label}`}
-                  />
+              {group.items.map((c) => (
+                <li key={c.id}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onSelectConversation(c.id)
+                      onClose()
+                    }}
+                    disabled={selectingConversationId === c.id}
+                    className={`flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left text-body-sm transition-colors disabled:cursor-wait ${
+                      activeConversationId === c.id
+                        ? 'bg-primary text-on-primary'
+                        : 'text-primary hover:bg-surface-high'
+                    }`}
+                  >
+                    <Icon
+                      name="chat_bubble"
+                      size={16}
+                      className="shrink-0 text-muted"
+                      filled={activeConversationId === c.id}
+                    />
+                    <span className="truncate">{c.title}</span>
+                    {selectingConversationId === c.id && (
+                      <Icon name="sync" size={14} className="ml-auto animate-spin shrink-0" />
+                    )}
+                  </button>
                 </li>
               ))}
             </ul>
-          )}
-        </div>
+          </div>
+        ))}
       </nav>
 
-      {/* Footer */}
-      <div className="mt-4 space-y-0.5 border-t border-border pt-2.5">
+      {/* Footer (fixed — Sources on the same section as Settings) */}
+      <div className="mt-4 shrink-0 border-t border-border pt-2.5">
         <button
           type="button"
-          onClick={onOpenAccounts}
-          className="flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-body-sm text-primary transition-colors hover:bg-surface-high"
+          onClick={() => setSourcesOpen((v) => !v)}
+          className="flex w-full items-center justify-between rounded-lg px-2 py-1.5 text-label-sm uppercase tracking-wider text-muted transition-colors hover:bg-surface-high"
         >
-          <Icon name="link" size={17} className="text-muted" />
-          Connected Accounts
-          <span className="ml-auto text-label-sm text-muted">{accounts.length}</span>
+          Sources
+          <Icon
+            name={sourcesOpen ? 'expand_more' : 'expand_less'}
+            size={16}
+            className="transition-transform"
+          />
         </button>
-        <button
-          type="button"
-          onClick={onOpenSettings}
-          className="flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-body-sm text-primary transition-colors hover:bg-surface-high"
-        >
-          <Icon name="settings" size={17} className="text-muted" />
-          Settings
-        </button>
-        <button
-          type="button"
-          onClick={onOpenHelp}
-          className="flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-body-sm text-primary transition-colors hover:bg-surface-high"
-        >
-          <Icon name="help" size={17} className="text-muted" />
-          Help
-        </button>
+        {sourcesOpen && (
+          <ul className="hide-scrollbar mt-1 max-h-[180px] space-y-0.5 overflow-y-auto">
+            {accounts.map((acc) => (
+              <li
+                key={acc.id}
+                className="flex items-center justify-between gap-2 rounded-lg px-2 py-1.5"
+              >
+                <span className="flex min-w-0 items-center gap-2 text-body-sm text-primary">
+                  <Icon name="mail" size={16} className="shrink-0" style={{ color: '#EA4335' }} />
+                  <span className="truncate">{acc.display_label}</span>
+                </span>
+                <ToggleSwitch
+                  checked={acc.is_active}
+                  busy={togglingAccountId === acc.id}
+                  onChange={(v) => onToggleAccount(acc.id, v)}
+                  label={`Toggle ${acc.display_label}`}
+                />
+              </li>
+            ))}
+          </ul>
+        )}
+
+        <div className="mt-1.5 space-y-0.5 border-t border-border pt-1.5">
+          <button
+            type="button"
+            onClick={onOpenAccounts}
+            className="flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-body-sm text-primary transition-colors hover:bg-surface-high"
+          >
+            <Icon name="link" size={17} className="text-muted" />
+            Connected Accounts
+            <span className="ml-auto text-label-sm text-muted">{accounts.length}</span>
+          </button>
+          <button
+            type="button"
+            onClick={onOpenSettings}
+            className="flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-body-sm text-primary transition-colors hover:bg-surface-high"
+          >
+            <Icon name="settings" size={17} className="text-muted" />
+            Settings
+          </button>
+          <button
+            type="button"
+            onClick={onOpenHelp}
+            className="flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-body-sm text-primary transition-colors hover:bg-surface-high"
+          >
+            <Icon name="help" size={17} className="text-muted" />
+            Help
+          </button>
+        </div>
       </div>
     </div>
   )
