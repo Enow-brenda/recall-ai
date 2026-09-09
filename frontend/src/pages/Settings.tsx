@@ -13,7 +13,6 @@ export function Settings() {
   const chat = useChat()
   const ui = useUI()
   const [stats, setStats] = useState<UsageStats | null>(null)
-  const [prefs, setPrefs] = useState({ theme: true, chatScope: true, notifications: false })
   const [confirmDelete, setConfirmDelete] = useState(false)
 
   useEffect(() => {
@@ -45,12 +44,6 @@ export function Settings() {
               <p className="text-body-md font-medium text-primary">{user?.name}</p>
               <p className="truncate text-body-sm text-muted">{user?.primary_email}</p>
             </div>
-            <button
-              type="button"
-              className="rounded-lg border border-border px-4 py-2 text-label-md text-primary transition-colors hover:bg-surface-low"
-            >
-              Edit profile
-            </button>
           </div>
         </Section>
 
@@ -74,7 +67,9 @@ export function Settings() {
             </div>
             <button
               type="button"
-              className="shrink-0 rounded-lg bg-accent px-5 py-2.5 text-label-md font-medium text-on-accent shadow-card transition-colors hover:bg-accent-hover"
+              disabled
+              title="Upgrade coming soon"
+              className="shrink-0 cursor-not-allowed rounded-lg bg-surface-low px-5 py-2.5 text-label-md font-medium text-muted"
             >
               Upgrade to Pro · $12/mo
             </button>
@@ -137,30 +132,6 @@ export function Settings() {
           <p className="mt-3.5 text-label-sm text-muted">
             {stats ? formatBytes((stats.quota_used / Math.max(stats.quota_limit ?? 1, 1)) * 50) : ''} of 50 GB memory used
           </p>
-        </Section>
-
-        {/* Preferences */}
-        <Section title="Preferences" icon="tune">
-          <ul className="space-y-3.5">
-            <PreferenceRow
-              label="Dark theme"
-              hint="Use a darker palette across Recall"
-              checked={prefs.theme}
-              onChange={(v) => setPrefs((p) => ({ ...p, theme: v }))}
-            />
-            <PreferenceRow
-              label="Search across all sources"
-              hint="Include every connected account in answers"
-              checked={prefs.chatScope}
-              onChange={(v) => setPrefs((p) => ({ ...p, chatScope: v }))}
-            />
-            <PreferenceRow
-              label="Email digests"
-              hint="Weekly summary of new memory"
-              checked={prefs.notifications}
-              onChange={(v) => setPrefs((p) => ({ ...p, notifications: v }))}
-            />
-          </ul>
         </Section>
 
         {/* Danger zone */}
@@ -236,28 +207,6 @@ function Avatar({ user }: { user: UserProfile | null }) {
     <span className="flex h-14 w-14 items-center justify-center rounded-full bg-surface-high text-headline-md text-primary">
       {user?.name?.[0] ?? 'R'}
     </span>
-  )
-}
-
-function PreferenceRow({
-  label,
-  hint,
-  checked,
-  onChange,
-}: {
-  label: string
-  hint: string
-  checked: boolean
-  onChange: (v: boolean) => void
-}) {
-  return (
-    <li className="flex items-center justify-between gap-4">
-      <div>
-        <p className="text-body-sm font-medium text-primary">{label}</p>
-        <p className="text-label-sm text-muted">{hint}</p>
-      </div>
-      <ToggleSwitch checked={checked} onChange={onChange} label={label} />
-    </li>
   )
 }
 

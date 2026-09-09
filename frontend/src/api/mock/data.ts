@@ -66,20 +66,20 @@ export const MOCK_CONVERSATIONS: Conversation[] = [
   {
     id: 'conv_001',
     title: 'Design agency invoice status',
-    started_at: new Date(Date.now() - 1000 * 60 * 60 * 26).toISOString(),
-    last_modified_at: new Date(Date.now() - 1000 * 60 * 60 * 26).toISOString(),
+    started_at: new Date(Date.now() - 1000 * 60 * 60 * 6).toISOString(),
+    last_modified_at: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(),
   },
   {
     id: 'conv_002',
     title: 'Flight itinerary for Lagos trip',
-    started_at: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString(),
-    last_modified_at: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString(),
+    started_at: new Date(Date.now() - 1000 * 60 * 60 * 28).toISOString(),
+    last_modified_at: new Date(Date.now() - 1000 * 60 * 60 * 26).toISOString(),
   },
   {
     id: 'conv_003',
     title: 'Lease agreement — signed version',
-    started_at: new Date(Date.now() - 1000 * 60 * 60 * 24 * 6).toISOString(),
-    last_modified_at: new Date(Date.now() - 1000 * 60 * 55).toISOString(),
+    started_at: new Date(Date.now() - 1000 * 60 * 60 * 24 * 4).toISOString(),
+    last_modified_at: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3).toISOString(),
   },
 ]
 
