@@ -1,29 +1,44 @@
+import { Icon } from './Icon'
+
 interface LogoProps {
   text?: string
   tagline?: string
   className?: string
 }
 
-export function LogoMark({ className = '' }: { className?: string }) {
+const BARS = [
+  { x: 3.5, h: 11 },
+  { x: 9.5, h: 18 },
+  { x: 15.5, h: 25 },
+  { x: 21.5, h: 25 },
+  { x: 27.5, h: 18 },
+  { x: 33.5, h: 11 },
+]
+
+export function LogoMark({ className = '', fill = '#EA580C' }: { className?: string; fill?: string }) {
   return (
-    <svg viewBox="0 0 32 32" className={className} aria-hidden="true">
-      <rect width="32" height="32" rx="8" fill="#F8FAFC" />
-      <path
-        d="M16 7.5c-4.7 0-8.5 3.2-8.5 7.25 0 2.2 1.1 4.15 2.9 5.5l-.55 2.35a.5.5 0 0 0 .77.53l2.5-1.5c.9.2 1.85.37 2.88.37 4.7 0 8.5-3.2 8.5-7.25S20.7 7.5 16 7.5Z"
-        fill="#EA580C"
-      />
-      <path
-        d="M12.9 13.6a1.15 1.15 0 1 1 0 2.3 1.15 1.15 0 0 1 0-2.3Zm3.1 0a1.15 1.15 0 1 1 0 2.3 1.15 1.15 0 0 1 0-2.3Zm3.1 0a1.15 1.15 0 1 1 0 2.3 1.15 1.15 0 0 1 0-2.3Z"
-        fill="#F8FAFC"
-      />
+    <svg viewBox="0 0 40 32" className={className} aria-hidden="true">
+      {BARS.map((bar) => (
+        <rect
+          key={bar.x}
+          x={bar.x}
+          y={(32 - bar.h) / 2}
+          width="4"
+          height={bar.h}
+          rx="2"
+          fill={fill}
+        />
+      ))}
     </svg>
   )
 }
 
-export function Logo({ text, tagline, className = '' }: LogoProps) {
+export function Logo({ text = 'Recall AI', tagline, className = '' }: LogoProps) {
   return (
-    <div className={`flex items-center gap-3 ${className}`}>
-      <LogoMark className="h-9 w-9 shrink-0" />
+    <div className={`flex items-center gap-2.5 ${className}`}>
+      <span className="flex items-center justify-center text-accent" aria-hidden="true">
+        <Icon name="graphic_eq" size={26} filled />
+      </span>
       {text && (
         <div className="leading-tight">
           <span className="block text-[20px] font-semibold tracking-tight text-primary">{text}</span>
@@ -31,5 +46,26 @@ export function Logo({ text, tagline, className = '' }: LogoProps) {
         </div>
       )}
     </div>
+  )
+}
+
+// Fixed mark used on favicon/brand contexts where the Material font may not apply.
+export function BotAvatar({
+  size = 24,
+  iconSize = 16,
+  className = '',
+}: {
+  size?: number
+  iconSize?: number
+  className?: string
+}) {
+  return (
+    <span
+      className={`flex shrink-0 items-center justify-center rounded-full bg-primary text-on-primary ${className}`}
+      style={{ width: size, height: size }}
+      aria-hidden="true"
+    >
+      <Icon name="graphic_eq" size={iconSize} filled />
+    </span>
   )
 }

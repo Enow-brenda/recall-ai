@@ -1,24 +1,44 @@
 @import "tailwindcss";
 
-@theme {
-  /* Brand palette (from recall-project-spec / DESIGN.md) */
-  --color-primary: #0f172a;
-  --color-primary-dim: #1e293b;
-  --color-on-primary: #ffffff;
+@custom-variant dark (&:where(.dark, .dark *));
 
+:root {
+  /* Semantic color tokens (light) — brand palette from recall-project-spec / DESIGN.md */
+  --recall-primary: #0f172a;
+  --recall-primary-dim: #1e293b;
+  --recall-on-primary: #ffffff;
+
+  --recall-surface: #f8fafc;
+  --recall-surface-low: #f1f5f9;
+  --recall-surface-high: #e2e8f0;
+  --recall-card: #ffffff;
+
+  --recall-muted: #64748b;
+  --recall-neutral: #94a3b8;
+  --recall-border: #e2e8f0;
+}
+
+.dark {
+  --recall-primary: #f1f5f9;
+  --recall-primary-dim: #cbd5e1;
+  --recall-on-primary: #0f172a;
+
+  --recall-surface: #0f172a;
+  --recall-surface-low: #131b2e;
+  --recall-surface-high: #1e293b;
+  --recall-card: #1e293b;
+
+  --recall-muted: #94a3b8;
+  --recall-neutral: #64748b;
+  --recall-border: #1e293b;
+}
+
+@theme {
+  /* Fixed brand colors (constant across themes) */
   --color-accent: #ea580c;
   --color-accent-hover: #c2410c;
   --color-accent-soft: rgba(234, 88, 12, 0.1);
   --color-on-accent: #ffffff;
-
-  --color-surface: #f8fafc;
-  --color-surface-low: #f1f5f9;
-  --color-surface-high: #e2e8f0;
-  --color-card: #ffffff;
-
-  --color-muted: #64748b;
-  --color-neutral: #94a3b8;
-  --color-border: #e2e8f0;
 
   --color-danger: #dc2626;
   --color-danger-soft: rgba(220, 38, 38, 0.08);
@@ -69,6 +89,22 @@
 
   --shadow-card: 0 1px 3px 0 rgba(15, 23, 42, 0.06);
   --shadow-overlay: 0 4px 24px -4px rgba(15, 23, 42, 0.16);
+}
+
+/* Theme-aware semantic tokens (flip with .dark) */
+@theme inline {
+  --color-primary: var(--recall-primary);
+  --color-primary-dim: var(--recall-primary-dim);
+  --color-on-primary: var(--recall-on-primary);
+
+  --color-surface: var(--recall-surface);
+  --color-surface-low: var(--recall-surface-low);
+  --color-surface-high: var(--recall-surface-high);
+  --color-card: var(--recall-card);
+
+  --color-muted: var(--recall-muted);
+  --color-neutral: var(--recall-neutral);
+  --color-border: var(--recall-border);
 }
 
 @layer base {
