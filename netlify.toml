@@ -1,0 +1,10 @@
+[build]
+  base = "frontend"
+  command = "npm ci && npm run build"
+  publish = "dist"
+
+# SPA fallback: let react-router handle /chat, /settings, /auth/callback, etc.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

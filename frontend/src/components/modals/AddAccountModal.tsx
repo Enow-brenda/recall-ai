@@ -15,13 +15,17 @@ export function AddAccountModal({ open, onClose, onAdded }: AddAccountModalProps
   const [providers, setProviders] = useState<ProviderInfo[]>([])
   const [accounts, setAccounts] = useState<AccountSummary[]>([])
   const [connecting, setConnecting] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     if (!open) return
-    void Promise.all([api.accounts.providers(), api.accounts.list()]).then(([p, a]) => {
-      setProviders(p)
-      setAccounts(a)
-    })
+    setLoading(true)
+    void Promise.all([api.accounts.providers(), api.accounts.list()])
+      .then(([p, a]) => {
+        setProviders(p)
+        setAccounts(a)
+      })
+      .finally(() => setLoading(false))
   }, [open])
 
   const connect = async (provider: string) => {
@@ -71,7 +75,14 @@ export function AddAccountModal({ open, onClose, onAdded }: AddAccountModalProps
         Connect a source so Recall can search across it. Tap a provider to begin.
       </p>
       <ul className="space-y-2.5">
-        {providers.map((p) => {
+        {loading && (
+          <li className="flex h-24 flex-col items-center justify-center gap-2 rounded-[8px] border border-border text-muted">
+            <Icon name="sync" size={20} className="animate-spin text-accent" />
+            <span className="text-label-md">Loading sources…</span>
+          </li>
+        )}
+        {!loading &&
+          providers.map((p) => {
           const busy = connecting === p.key
           const connectable = p.is_active && !isConnected(p.key)
           return (

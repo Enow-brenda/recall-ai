@@ -1,0 +1,409 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Recall AI - Active Chat</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config injected from system prompt -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-tint": "#565e74",
+                    "tertiary": "#000000",
+                    "tertiary-container": "#271901",
+                    "surface-dim": "#ccdbf2",
+                    "primary": "#000000",
+                    "on-tertiary-container": "#98805d",
+                    "surface-variant": "#d4e4fa",
+                    "inverse-surface": "#233143",
+                    "on-secondary-container": "#626567",
+                    "on-error": "#ffffff",
+                    "inverse-on-surface": "#e9f1ff",
+                    "on-tertiary-fixed-variant": "#574425",
+                    "surface-container-high": "#dbe9ff",
+                    "surface-container-highest": "#d4e4fa",
+                    "primary-fixed": "#dae2fd",
+                    "background": "#f8f9ff",
+                    "surface-container": "#e5efff",
+                    "surface-bright": "#f8f9ff",
+                    "on-primary-container": "#7c839b",
+                    "on-surface": "#0d1c2d",
+                    "on-tertiary-fixed": "#271901",
+                    "secondary-fixed-dim": "#c4c7c9",
+                    "on-secondary-fixed-variant": "#444749",
+                    "on-tertiary": "#ffffff",
+                    "error": "#ba1a1a",
+                    "surface": "#f8f9ff",
+                    "outline-variant": "#c6c6cd",
+                    "surface-container-lowest": "#ffffff",
+                    "on-primary-fixed-variant": "#3f465c",
+                    "on-secondary-fixed": "#191c1e",
+                    "on-secondary": "#ffffff",
+                    "on-background": "#0d1c2d",
+                    "error-container": "#ffdad6",
+                    "primary-container": "#131b2e",
+                    "primary-fixed-dim": "#bec6e0",
+                    "tertiary-fixed": "#fcdeb5",
+                    "secondary-fixed": "#e0e3e5",
+                    "on-error-container": "#93000a",
+                    "secondary-container": "#e0e3e5",
+                    "surface-container-low": "#eef4ff",
+                    "outline": "#76777d",
+                    "on-surface-variant": "#45464d",
+                    "inverse-primary": "#bec6e0",
+                    "on-primary": "#ffffff",
+                    "on-primary-fixed": "#131b2e",
+                    "tertiary-fixed-dim": "#dec29a",
+                    "secondary": "#5c5f61"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "max-width-content": "800px",
+                    "xs": "8px",
+                    "sm": "16px",
+                    "margin-mobile": "16px",
+                    "margin-desktop": "32px",
+                    "xl": "64px",
+                    "base": "4px",
+                    "gutter": "20px",
+                    "lg": "40px",
+                    "md": "24px"
+            },
+            "fontFamily": {
+                    "headline-md": [
+                            "Inter"
+                    ],
+                    "headline-sm": [
+                            "Inter"
+                    ],
+                    "body-md": [
+                            "Inter"
+                    ],
+                    "label-sm": [
+                            "Inter"
+                    ],
+                    "body-lg": [
+                            "Inter"
+                    ],
+                    "display-lg": [
+                            "Inter"
+                    ],
+                    "label-md": [
+                            "Inter"
+                    ],
+                    "body-sm": [
+                            "Inter"
+                    ],
+                    "display-lg-mobile": [
+                            "Inter"
+                    ]
+            },
+            "fontSize": {
+                    "headline-md": [
+                            "24px",
+                            {
+                                    "lineHeight": "32px",
+                                    "letterSpacing": "-0.01em",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "headline-sm": [
+                            "20px",
+                            {
+                                    "lineHeight": "28px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "body-md": [
+                            "16px",
+                            {
+                                    "lineHeight": "24px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "label-sm": [
+                            "12px",
+                            {
+                                    "lineHeight": "16px",
+                                    "letterSpacing": "0.05em",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "body-lg": [
+                            "18px",
+                            {
+                                    "lineHeight": "28px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "display-lg": [
+                            "36px",
+                            {
+                                    "lineHeight": "44px",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "label-md": [
+                            "14px",
+                            {
+                                    "lineHeight": "16px",
+                                    "letterSpacing": "0.01em",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "body-sm": [
+                            "14px",
+                            {
+                                    "lineHeight": "20px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "display-lg-mobile": [
+                            "28px",
+                            {
+                                    "lineHeight": "34px",
+                                    "fontWeight": "700"
+                            }
+                    ]
+            }
+    },
+        },
+      }
+    </script>
+<style>
+        /* Hide scrollbar for a cleaner look */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: theme('colors.secondary-fixed-dim');
+            border-radius: theme('borderRadius.full');
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex">
+<!-- Mobile Header (Hidden on Desktop) -->
+<header class="md:hidden fixed top-0 w-full bg-surface z-50 px-margin-mobile py-sm border-b border-outline-variant flex justify-between items-center">
+<span class="font-headline-sm text-headline-sm font-bold text-primary">Recall AI</span>
+<button class="text-on-surface-variant p-2 rounded-full hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined">menu</span>
+</button>
+</header>
+<!-- SideNavBar (Desktop Only) -->
+<nav class="hidden md:flex bg-surface-container-low text-primary font-label-md text-label-md fixed left-0 top-0 h-screen flex-col p-sm border-r border-outline-variant docked left-0 top-0 h-full w-64 z-40">
+<!-- Header -->
+<div class="mb-lg px-2 flex items-center space-x-3">
+<div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-on-primary font-bold">R</div>
+<div>
+<h1 class="font-headline-sm text-headline-sm font-bold text-primary">Recall AI</h1>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Intelligent Memory</p>
+</div>
+</div>
+<!-- CTA -->
+<button class="w-full bg-primary text-on-primary py-3 rounded-lg mb-lg font-label-md hover:opacity-90 transition-opacity flex items-center justify-center space-x-2 shadow-sm">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">add</span>
+<span>New Memory</span>
+</button>
+<!-- Main Navigation -->
+<div class="flex-1 space-y-2">
+<!-- Active State: Memory Feed -->
+<a class="flex items-center space-x-3 p-3 text-on-surface font-bold bg-surface-container-high rounded-lg scale-98 active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">chat_bubble</span>
+<span>Memory Feed</span>
+</a>
+<a class="flex items-center space-x-3 p-3 text-on-surface-variant hover:bg-surface-container-highest transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined">history</span>
+<span>Recents</span>
+</a>
+<a class="flex items-center space-x-3 p-3 text-on-surface-variant hover:bg-surface-container-highest transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined">star</span>
+<span>Starred</span>
+</a>
+<a class="flex items-center space-x-3 p-3 text-on-surface-variant hover:bg-surface-container-highest transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined">group</span>
+<span>People</span>
+</a>
+<a class="flex items-center space-x-3 p-3 text-on-surface-variant hover:bg-surface-container-highest transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span>Settings</span>
+</a>
+</div>
+<!-- Connected Accounts Section -->
+<div class="mb-6">
+<h3 class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-3 px-3">Sources</h3>
+<div class="space-y-1">
+<div class="flex items-center justify-between p-2 rounded-lg bg-surface-container-highest">
+<div class="flex items-center space-x-2 text-on-surface">
+<span class="material-symbols-outlined text-primary text-[18px]">mail</span>
+<span class="font-label-md text-label-md">Work Gmail</span>
+</div>
+<span class="w-2 h-2 rounded-full bg-green-500"></span>
+</div>
+<div class="flex items-center justify-between p-2 rounded-lg hover:bg-surface-container-highest transition-colors">
+<div class="flex items-center space-x-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">mail</span>
+<span class="font-label-md text-label-md">Personal</span>
+</div>
+<span class="w-2 h-2 rounded-full bg-green-500"></span>
+</div>
+<div class="flex items-center justify-between p-2 rounded-lg opacity-50">
+<div class="flex items-center space-x-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">tag</span>
+<span class="font-label-md text-label-md">Slack</span>
+</div>
+<span class="w-2 h-2 rounded-full bg-gray-300"></span>
+</div>
+<div class="flex items-center justify-between p-2 rounded-lg opacity-50">
+<div class="flex items-center space-x-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">forum</span>
+<span class="font-label-md text-label-md">WhatsApp</span>
+</div>
+<span class="w-2 h-2 rounded-full bg-gray-300"></span>
+</div>
+</div>
+</div>
+<!-- Footer Navigation -->
+<div class="pt-4 border-t border-outline-variant space-y-2">
+<a class="flex items-center space-x-3 p-2 text-on-surface-variant hover:bg-surface-container-highest transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined">link</span>
+<span>Connected Accounts</span>
+</a>
+<a class="flex items-center space-x-3 p-2 text-on-surface-variant hover:bg-surface-container-highest transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined">help</span>
+<span>Help</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-1 ml-0 md:ml-64 flex flex-col h-screen pt-[64px] md:pt-0 relative">
+<!-- Filter Bar -->
+<div class="w-full bg-surface/90 backdrop-blur-sm z-30 sticky top-0 md:top-0 border-b border-outline-variant/30 px-margin-mobile md:px-margin-desktop py-sm flex items-center space-x-3 overflow-x-auto">
+<button class="whitespace-nowrap px-4 py-1.5 rounded-full bg-primary text-on-primary font-label-md text-label-md shadow-sm transition-transform active:scale-95">
+                All Sources
+            </button>
+<button class="whitespace-nowrap px-4 py-1.5 rounded-full border border-outline-variant bg-surface text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-highest transition-colors">
+                Work Gmail
+            </button>
+<button class="whitespace-nowrap px-4 py-1.5 rounded-full border border-outline-variant bg-surface text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-highest transition-colors">
+                Personal
+            </button>
+</div>
+<!-- Chat History -->
+<div class="flex-1 overflow-y-auto px-margin-mobile md:px-margin-desktop py-lg pb-32">
+<div class="max-w-[800px] mx-auto space-y-lg">
+<!-- Date Separator -->
+<div class="flex justify-center">
+<span class="text-on-surface-variant font-label-sm text-label-sm px-3 py-1 bg-surface-container-high rounded-full">Today</span>
+</div>
+<!-- User Message -->
+<div class="flex justify-end">
+<div class="max-w-[85%] bg-surface-container-highest rounded-2xl rounded-tr-none p-md border border-outline-variant/50">
+<p class="font-body-md text-body-md text-on-surface">Find the invoice from the design agency.</p>
+<span class="block mt-2 font-label-sm text-label-sm text-on-surface-variant text-right">10:42 AM</span>
+</div>
+</div>
+<!-- AI Response 1 -->
+<div class="flex justify-start">
+<div class="max-w-[85%]">
+<div class="flex items-start space-x-3">
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center shrink-0 mt-1 shadow-sm">
+<span class="material-symbols-outlined text-[18px]">smart_toy</span>
+</div>
+<div class="space-y-3">
+<!-- Text Response -->
+<div class="bg-surface rounded-2xl rounded-tl-none p-md border border-outline-variant shadow-sm">
+<p class="font-body-md text-body-md text-on-surface">Here is the invoice from <span class="bg-orange-500/10 font-semibold px-1 rounded text-on-surface">Design Studio</span> sent on Oct 12.</p>
+</div>
+<!-- Source Chips -->
+<div class="flex flex-wrap gap-2">
+<button class="flex items-center space-x-2 bg-[#F1F5F9] border border-outline-variant/30 px-3 py-1.5 rounded-full hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined text-[14px] text-primary">mail</span>
+<span class="font-label-sm text-label-sm text-on-surface">Invoice_v3.pdf</span>
+</button>
+<button class="flex items-center space-x-2 bg-[#F1F5F9] border border-outline-variant/30 px-3 py-1.5 rounded-full hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined text-[14px] text-blue-600">link</span>
+<span class="font-label-sm text-label-sm text-on-surface">dropbox.com/design...</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- AI Response 2 (Proactive/Contextual) -->
+<div class="flex justify-start">
+<div class="max-w-[85%]">
+<div class="flex items-start space-x-3">
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center shrink-0 mt-1 shadow-sm opacity-0">
+<!-- Spacer avatar -->
+</div>
+<div class="space-y-4">
+<div class="bg-surface rounded-2xl p-md border border-outline-variant shadow-sm">
+<p class="font-body-md text-body-md text-on-surface mb-4">The meeting is scheduled for Tuesday at 3 PM.</p>
+<!-- Proposed Event Card -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow">
+<div class="flex items-start justify-between mb-4">
+<div class="flex items-center space-x-3">
+<div class="bg-surface-container-high rounded-lg p-2 text-center min-w-[48px]">
+<span class="block font-label-sm text-label-sm text-red-500 font-bold">OCT</span>
+<span class="block font-headline-sm text-headline-sm text-on-surface">17</span>
+</div>
+<div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface">Design Review</h4>
+<p class="font-label-md text-label-md text-on-surface-variant">3:00 PM - 4:00 PM</p>
+</div>
+</div>
+</div>
+<div class="mb-4">
+<p class="font-label-sm text-label-sm text-on-surface-variant mb-2">ATTENDEES</p>
+<div class="flex -space-x-2">
+<div class="w-8 h-8 rounded-full bg-blue-100 border-2 border-surface flex items-center justify-center text-xs font-bold text-blue-700 z-30">SA</div>
+<div class="w-8 h-8 rounded-full bg-green-100 border-2 border-surface flex items-center justify-center text-xs font-bold text-green-700 z-20">JD</div>
+<div class="w-8 h-8 rounded-full bg-purple-100 border-2 border-surface flex items-center justify-center text-xs font-bold text-purple-700 z-10">MR</div>
+</div>
+</div>
+<button class="w-full bg-[#f97316] text-white py-2 rounded-lg font-label-md hover:bg-[#ea580c] transition-colors flex items-center justify-center space-x-2">
+<span class="material-symbols-outlined text-[18px]">calendar_add_on</span>
+<span>Add to Calendar</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Conversational Input -->
+<div class="absolute bottom-0 left-0 w-full bg-gradient-to-t from-background via-background to-transparent pt-8 pb-margin-mobile md:pb-margin-desktop px-margin-mobile md:px-margin-desktop z-40">
+<div class="max-w-[800px] mx-auto">
+<div class="bg-surface border border-outline-variant rounded-2xl shadow-[0_4px_20px_rgba(35,49,67,0.05)] p-2 flex items-end relative overflow-hidden transition-all duration-200 focus-within:border-primary focus-within:shadow-[0_4px_20px_rgba(35,49,67,0.1)]">
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors rounded-lg mb-1">
+<span class="material-symbols-outlined">attach_file</span>
+</button>
+<textarea class="flex-1 bg-transparent border-none focus:ring-0 resize-none font-body-md text-body-md text-on-surface py-3 px-2 max-h-32 min-h-[48px]" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'" placeholder="Ask Recall to find a memory..." rows="1"></textarea>
+<button class="p-3 bg-primary text-on-primary rounded-xl mb-1 ml-2 hover:opacity-90 transition-opacity flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">arrow_upward</span>
+</button>
+</div>
+<div class="text-center mt-2">
+<p class="font-label-sm text-label-sm text-on-surface-variant opacity-70">Recall AI can make mistakes. Consider verifying important information.</p>
+</div>
+</div>
+</div>
+</main>
+</body></html>

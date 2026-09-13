@@ -1,0 +1,294 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Recall - Settings</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "secondary-fixed": "#e0e3e5",
+                        "on-background": "#0d1c2d",
+                        "on-secondary-container": "#626567",
+                        "tertiary": "#000000",
+                        "surface-container-high": "#dbe9ff",
+                        "secondary": "#5c5f61",
+                        "surface-container-highest": "#d4e4fa",
+                        "surface-container": "#e5efff",
+                        "primary-fixed": "#dae2fd",
+                        "on-secondary-fixed": "#191c1e",
+                        "inverse-on-surface": "#e9f1ff",
+                        "on-error": "#ffffff",
+                        "surface-container-low": "#eef4ff",
+                        "surface-tint": "#565e74",
+                        "tertiary-fixed-dim": "#dec29a",
+                        "tertiary-fixed": "#fcdeb5",
+                        "on-secondary": "#ffffff",
+                        "secondary-fixed-dim": "#c4c7c9",
+                        "on-primary": "#ffffff",
+                        "primary-container": "#131b2e",
+                        "on-tertiary-fixed-variant": "#574425",
+                        "surface": "#f8f9ff",
+                        "on-error-container": "#93000a",
+                        "error": "#ba1a1a",
+                        "tertiary-container": "#271901",
+                        "on-primary-fixed": "#131b2e",
+                        "primary": "#000000",
+                        "surface-variant": "#d4e4fa",
+                        "on-secondary-fixed-variant": "#444749",
+                        "error-container": "#ffdad6",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "surface-bright": "#f8f9ff",
+                        "on-tertiary-container": "#98805d",
+                        "background": "#f8f9ff",
+                        "on-primary-container": "#7c839b",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-fixed": "#271901",
+                        "outline": "#76777d",
+                        "outline-variant": "#c6c6cd",
+                        "secondary-container": "#e0e3e5",
+                        "on-surface-variant": "#45464d",
+                        "surface-dim": "#ccdbf2",
+                        "inverse-primary": "#bec6e0",
+                        "on-surface": "#0d1c2d",
+                        "primary-fixed-dim": "#bec6e0",
+                        "inverse-surface": "#233143",
+                        "on-tertiary": "#ffffff"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    spacing: {
+                        "gutter": "20px",
+                        "margin-mobile": "16px",
+                        "lg": "40px",
+                        "base": "4px",
+                        "margin-desktop": "32px",
+                        "xs": "8px",
+                        "sm": "16px",
+                        "md": "24px",
+                        "max-width-content": "800px",
+                        "xl": "64px"
+                    },
+                    fontFamily: {
+                        "label-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "display-lg-mobile": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "headline-md": ["Inter"]
+                    },
+                    fontSize: {
+                        "label-md": ["14px", { lineHeight: "16px", letterSpacing: "0.01em", fontWeight: "500" }],
+                        "body-lg": ["18px", { lineHeight: "28px", fontWeight: "400" }],
+                        "display-lg-mobile": ["28px", { lineHeight: "34px", fontWeight: "700" }],
+                        "body-sm": ["14px", { lineHeight: "20px", fontWeight: "400" }],
+                        "label-sm": ["12px", { lineHeight: "16px", letterSpacing: "0.05em", fontWeight: "600" }],
+                        "headline-sm": ["20px", { lineHeight: "28px", fontWeight: "600" }],
+                        "display-lg": ["36px", { lineHeight: "44px", letterSpacing: "-0.02em", fontWeight: "700" }],
+                        "body-md": ["16px", { lineHeight: "24px", fontWeight: "400" }],
+                        "headline-md": ["24px", { lineHeight: "32px", letterSpacing: "-0.01em", fontWeight: "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-surface font-body-md antialiased h-screen flex flex-col md:flex-row overflow-hidden">
+<!-- Side Navigation (Desktop) -->
+<nav class="hidden md:flex flex-col p-sm bg-surface-container-low text-primary font-label-md docked left-0 top-0 h-full w-64 border-r border-outline-variant flat no shadows">
+<div class="flex items-center gap-sm mb-lg px-xs py-xs">
+<img alt="Recall AI Logo" class="w-8 h-8 rounded-lg object-cover" src="https://lh3.googleusercontent.com/aida/AP1WRLtzVxgNcetPpCeFs-5-KFwPQj6a8ldcbefA6PsaYVPA0maLWe36Aay9ELgnbkEtILLu2500Rj6fcJWCFmB3VWBqanebd4BM_vuqe_wMWxFmghfF_4ydXOIrrqS7Iyh4do18k1OE6KNb1sobyVhjq_IxZM9w9Rkzd5CP-G6JJGt96y9IjVQtt_KPynnNOt-b9CjmN-dV6igjUcZISb05oJ_Df5L6gLLL3B1RbMj0Z84H2f-EsDMd5gUkOSQ">
+<div>
+<div class="font-headline-sm text-headline-sm font-bold text-primary">Recall AI</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">Intelligent Memory</div>
+</div>
+</div>
+<button class="bg-primary text-on-primary w-full py-xs px-sm rounded-lg mb-lg font-label-md hover:bg-primary-container hover:text-on-primary-container transition-colors shadow-sm flex items-center justify-center gap-xs">
+<span class="material-symbols-outlined" style="font-size: 18px;">add</span>
+            New Memory
+        </button>
+<div class="flex-1 flex flex-col gap-base">
+<a class="text-on-surface-variant hover:bg-surface-container-highest transition-colors scale-98 active:scale-95 flex items-center gap-sm py-xs px-sm rounded-lg" href="#">
+<span class="material-symbols-outlined">chat_bubble</span> Memory Feed
+            </a>
+<a class="text-on-surface-variant hover:bg-surface-container-highest transition-colors scale-98 active:scale-95 flex items-center gap-sm py-xs px-sm rounded-lg" href="#">
+<span class="material-symbols-outlined">history</span> Recents
+            </a>
+<a class="text-on-surface-variant hover:bg-surface-container-highest transition-colors scale-98 active:scale-95 flex items-center gap-sm py-xs px-sm rounded-lg" href="#">
+<span class="material-symbols-outlined">star</span> Starred
+            </a>
+<a class="text-on-surface-variant hover:bg-surface-container-highest transition-colors scale-98 active:scale-95 flex items-center gap-sm py-xs px-sm rounded-lg" href="#">
+<span class="material-symbols-outlined">group</span> People
+            </a>
+<a class="text-on-surface font-bold bg-surface-container-high rounded-lg scale-98 active:scale-95 transition-transform flex items-center gap-sm py-xs px-sm" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">settings</span> Settings
+            </a>
+</div>
+<div class="mt-auto border-t border-outline-variant pt-sm flex flex-col gap-base">
+<a class="text-on-surface-variant hover:bg-surface-container-highest transition-colors scale-98 active:scale-95 flex items-center gap-sm py-xs px-sm rounded-lg" href="#">
+<span class="material-symbols-outlined">link</span> Connected Accounts
+            </a>
+<a class="text-on-surface-variant hover:bg-surface-container-highest transition-colors scale-98 active:scale-95 flex items-center gap-sm py-xs px-sm rounded-lg" href="#">
+<span class="material-symbols-outlined">help</span> Help
+            </a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col h-full overflow-y-auto">
+<!-- Mobile Top Nav (Visible only on mobile) -->
+<header class="md:hidden flex justify-between items-center px-margin-mobile py-sm w-full bg-surface text-primary border-b border-outline-variant">
+<div class="font-headline-sm text-headline-sm font-bold text-primary flex items-center gap-xs">
+<img alt="Recall AI Logo" class="w-6 h-6 rounded" src="https://lh3.googleusercontent.com/aida/AP1WRLtzVxgNcetPpCeFs-5-KFwPQj6a8ldcbefA6PsaYVPA0maLWe36Aay9ELgnbkEtILLu2500Rj6fcJWCFmB3VWBqanebd4BM_vuqe_wMWxFmghfF_4ydXOIrrqS7Iyh4do18k1OE6KNb1sobyVhjq_IxZM9w9Rkzd5CP-G6JJGt96y9IjVQtt_KPynnNOt-b9CjmN-dV6igjUcZISb05oJ_Df5L6gLLL3B1RbMj0Z84H2f-EsDMd5gUkOSQ"> Recall
+            </div>
+<button class="material-symbols-outlined">menu</button>
+</header>
+<div class="max-w-content mx-auto w-full px-margin-mobile md:px-margin-desktop py-lg flex flex-col gap-lg">
+<div>
+<h1 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg mb-xs">Settings</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Manage your account, billing, and connections.</p>
+</div>
+<!-- Horizontal Tabs -->
+<div class="flex overflow-x-auto border-b border-outline-variant gap-md hide-scrollbar">
+<a class="pb-xs font-label-md text-label-md text-on-surface-variant hover:text-primary whitespace-nowrap" href="#">General</a>
+<a class="pb-xs font-label-md text-label-md text-primary font-bold border-b-2 border-primary whitespace-nowrap" href="#">Plan &amp; Billing</a>
+<a class="pb-xs font-label-md text-label-md text-on-surface-variant hover:text-primary whitespace-nowrap" href="#">Connections</a>
+<a class="pb-xs font-label-md text-label-md text-on-surface-variant hover:text-primary whitespace-nowrap" href="#">Privacy</a>
+<a class="pb-xs font-label-md text-label-md text-on-surface-variant hover:text-primary whitespace-nowrap" href="#">Preferences</a>
+</div>
+<!-- Plan & Billing Content -->
+<div class="flex flex-col gap-lg">
+<!-- Plan Card -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md flex flex-col md:flex-row justify-between items-start md:items-center gap-md">
+<div class="flex-1 w-full">
+<div class="flex items-center gap-sm mb-xs">
+<h2 class="font-headline-md text-headline-md">Free Tier</h2>
+<span class="bg-surface-container text-on-surface text-label-sm font-label-sm px-xs py-base rounded-full">Current Plan</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-sm">Basic memory retrieval for light users.</p>
+<div class="w-full">
+<div class="flex justify-between font-label-sm text-label-sm mb-base text-on-surface">
+<span>45 of 50 queries used</span>
+<span>90%</span>
+</div>
+<div class="w-full bg-surface-variant rounded-full h-2 overflow-hidden">
+<div class="bg-[#EA580C] h-2 rounded-full" style="width: 90%"></div>
+</div>
+</div>
+</div>
+<div class="w-full md:w-auto">
+<button class="w-full md:w-auto bg-[#EA580C] text-white font-label-md text-label-md py-xs px-md rounded-lg hover:bg-opacity-90 transition-opacity">
+                            Upgrade to Pro
+                        </button>
+</div>
+</div>
+<!-- Connections Section -->
+<div>
+<h3 class="font-headline-sm text-headline-sm mb-sm border-b border-outline-variant pb-xs">Connections</h3>
+<div class="flex flex-col gap-sm">
+<!-- Active Connection 1 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-sm flex justify-between items-center">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 bg-surface-container flex items-center justify-center rounded-lg text-primary">
+<span class="material-symbols-outlined">mail</span>
+</div>
+<div>
+<div class="font-label-md text-label-md flex items-center gap-xs">
+                                        Work <span class="w-2 h-2 rounded-full bg-green-500"></span>
+</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">user@work.com</div>
+</div>
+</div>
+<button class="font-label-sm text-label-sm text-on-surface-variant hover:text-error transition-colors">Remove</button>
+</div>
+<!-- Active Connection 2 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-sm flex justify-between items-center">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 bg-surface-container flex items-center justify-center rounded-lg text-primary">
+<span class="material-symbols-outlined">mail</span>
+</div>
+<div>
+<div class="font-label-md text-label-md flex items-center gap-xs">
+                                        Personal <span class="w-2 h-2 rounded-full bg-green-500"></span>
+</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">user@gmail.com</div>
+</div>
+</div>
+<button class="font-label-sm text-label-sm text-on-surface-variant hover:text-error transition-colors">Remove</button>
+</div>
+<!-- Connect New -->
+<button class="border border-dashed border-outline-variant rounded-lg p-sm flex items-center justify-center gap-xs text-primary hover:bg-surface-container-low transition-colors font-label-md text-label-md">
+<span class="material-symbols-outlined">add</span>
+                            Connect Another Gmail
+                        </button>
+<!-- Coming Soon Connections -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-sm mt-sm">
+<div class="bg-surface-bright border border-outline-variant rounded-lg p-sm flex items-center gap-md opacity-60 grayscale">
+<div class="w-10 h-10 bg-surface-container flex items-center justify-center rounded-lg text-on-surface-variant">
+<span class="material-symbols-outlined">forum</span>
+</div>
+<div class="flex-1">
+<div class="font-label-md text-label-md">WhatsApp</div>
+</div>
+<span class="bg-surface-variant text-on-surface-variant font-label-sm text-label-sm px-xs py-base rounded">Coming Soon</span>
+</div>
+<div class="bg-surface-bright border border-outline-variant rounded-lg p-sm flex items-center gap-md opacity-60 grayscale">
+<div class="w-10 h-10 bg-surface-container flex items-center justify-center rounded-lg text-on-surface-variant">
+<span class="material-symbols-outlined">tag</span>
+</div>
+<div class="flex-1">
+<div class="font-label-md text-label-md">Slack</div>
+</div>
+<span class="bg-surface-variant text-on-surface-variant font-label-sm text-label-sm px-xs py-base rounded">Coming Soon</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Danger Zone -->
+<div class="mt-lg border border-error-container bg-surface-container-lowest rounded-xl p-md">
+<h3 class="font-headline-sm text-headline-sm text-error mb-xs">Danger Zone</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-md">Irreversible actions regarding your account data.</p>
+<div class="flex justify-between items-center border-t border-error-container pt-sm">
+<div>
+<div class="font-label-md text-label-md">Delete Account</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Permanently delete all your data and memories.</div>
+</div>
+<button class="bg-error-container text-error font-label-md text-label-md py-xs px-sm rounded-lg hover:bg-error hover:text-on-error transition-colors">
+                            Delete Account
+                        </button>
+</div>
+</div>
+</div>
+</div>
+<footer class="mt-auto flex flex-col md:flex-row justify-between items-center px-margin-desktop py-lg w-full max-w-content mx-auto border-t border-outline-variant bg-surface text-on-surface-variant font-label-sm text-label-sm">
+<div>© 2024 Recall. All rights reserved.</div>
+<div class="flex gap-md mt-sm md:mt-0">
+<a class="hover:text-primary underline transition-opacity duration-200" href="#">Privacy Policy</a>
+<a class="hover:text-primary underline transition-opacity duration-200" href="#">Terms of Service</a>
+<a class="hover:text-primary underline transition-opacity duration-200" href="#">Contact</a>
+</div>
+</footer>
+</main>
+<style>
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</body></html>

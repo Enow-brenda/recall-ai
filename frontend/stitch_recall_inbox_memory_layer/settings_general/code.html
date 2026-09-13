@@ -1,0 +1,387 @@
+<!DOCTYPE html><html class="h-full" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Recall - Settings</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-low": "#eef4ff",
+                    "on-background": "#0d1c2d",
+                    "surface-tint": "#565e74",
+                    "primary-container": "#131b2e",
+                    "tertiary": "#000000",
+                    "inverse-surface": "#233143",
+                    "tertiary-fixed-dim": "#dec29a",
+                    "inverse-on-surface": "#e9f1ff",
+                    "on-primary-fixed-variant": "#3f465c",
+                    "error-container": "#ffdad6",
+                    "on-secondary-container": "#626567",
+                    "tertiary-container": "#271901",
+                    "background": "#f8f9ff",
+                    "surface-container": "#e5efff",
+                    "error": "#ba1a1a",
+                    "secondary-fixed-dim": "#c4c7c9",
+                    "on-surface-variant": "#45464d",
+                    "on-primary-fixed": "#131b2e",
+                    "on-secondary": "#ffffff",
+                    "surface-variant": "#d4e4fa",
+                    "secondary": "#5c5f61",
+                    "on-primary": "#ffffff",
+                    "surface-container-highest": "#d4e4fa",
+                    "on-surface": "#0d1c2d",
+                    "surface-bright": "#f8f9ff",
+                    "outline-variant": "#c6c6cd",
+                    "surface-container-high": "#dbe9ff",
+                    "on-tertiary": "#ffffff",
+                    "on-secondary-fixed-variant": "#444749",
+                    "on-primary-container": "#7c839b",
+                    "on-tertiary-fixed": "#271901",
+                    "primary-fixed-dim": "#bec6e0",
+                    "tertiary-fixed": "#fcdeb5",
+                    "on-error-container": "#93000a",
+                    "on-error": "#ffffff",
+                    "on-tertiary-fixed-variant": "#574425",
+                    "surface": "#f8f9ff",
+                    "primary": "#000000",
+                    "on-tertiary-container": "#98805d",
+                    "on-secondary-fixed": "#191c1e",
+                    "outline": "#76777d",
+                    "surface-container-lowest": "#ffffff",
+                    "inverse-primary": "#bec6e0",
+                    "primary-fixed": "#dae2fd",
+                    "secondary-container": "#e0e3e5",
+                    "secondary-fixed": "#e0e3e5",
+                    "surface-dim": "#ccdbf2"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "md": "24px",
+                    "max-width-content": "800px",
+                    "base": "4px",
+                    "gutter": "20px",
+                    "margin-mobile": "16px",
+                    "margin-desktop": "32px",
+                    "lg": "40px",
+                    "sm": "16px",
+                    "xs": "8px",
+                    "xl": "64px"
+            },
+            "fontFamily": {
+                    "headline-sm": [
+                            "Inter"
+                    ],
+                    "headline-md": [
+                            "Inter"
+                    ],
+                    "body-md": [
+                            "Inter"
+                    ],
+                    "label-md": [
+                            "Inter"
+                    ],
+                    "label-sm": [
+                            "Inter"
+                    ],
+                    "body-sm": [
+                            "Inter"
+                    ],
+                    "display-lg-mobile": [
+                            "Inter"
+                    ],
+                    "body-lg": [
+                            "Inter"
+                    ],
+                    "display-lg": [
+                            "Inter"
+                    ]
+            },
+            "fontSize": {
+                    "headline-sm": [
+                            "20px",
+                            {
+                                    "lineHeight": "28px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "headline-md": [
+                            "24px",
+                            {
+                                    "lineHeight": "32px",
+                                    "letterSpacing": "-0.01em",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "body-md": [
+                            "16px",
+                            {
+                                    "lineHeight": "24px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "label-md": [
+                            "14px",
+                            {
+                                    "lineHeight": "16px",
+                                    "letterSpacing": "0.01em",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "label-sm": [
+                            "12px",
+                            {
+                                    "lineHeight": "16px",
+                                    "letterSpacing": "0.05em",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "body-sm": [
+                            "14px",
+                            {
+                                    "lineHeight": "20px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "display-lg-mobile": [
+                            "28px",
+                            {
+                                    "lineHeight": "34px",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "body-lg": [
+                            "18px",
+                            {
+                                    "lineHeight": "28px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "display-lg": [
+                            "36px",
+                            {
+                                    "lineHeight": "44px",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "700"
+                            }
+                    ]
+            }
+    },
+        },
+      }
+    </script>
+</head>
+<body class="bg-background text-on-background font-body-md h-full flex antialiased selection:bg-surface-variant">
+<!-- SideNavBar -->
+<nav aria-label="Sidebar" class="bg-surface-container-low text-primary font-label-md docked left-0 top-0 h-full w-64 border-r border-outline-variant flat no shadows fixed left-0 top-0 h-screen flex flex-col p-sm z-50 transition-all duration-200">
+<!-- Header -->
+<div class="flex items-center gap-3 mb-8 px-2">
+<img class="w-8 h-8 rounded-full object-cover" data-alt="A small, circular abstract 3D render of a glowing blue orb, minimalist, high contrast, clean background. Used as a user profile avatar in a digital interface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBn3BBY4zxt3Q8eUMiOzcP7zh1IZqU_l9IGTRa7SUHK-eAvoMHGLz0Hy482TzLibOVGESD4_3LhPqJPwSwqd6oagWul8hXwXnFCnLB1mSKd1Ky5XACdJvLcOMciojB0jwnWM6n9h2ew8nCg5-7wEVL2N4Wl_k0kvCglqhdcofVB28O31WL5GDt4346xkGh0MkhV3-cw1S6bGQxu6vhsPbIZBKtddLmxMepB1mvGWnDJUnRHOGYhzo_l">
+<div>
+<h2 class="font-headline-sm text-headline-sm font-bold text-primary tracking-tight">Recall AI</h2>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Intelligent Memory</p>
+</div>
+</div>
+<!-- CTA -->
+<button class="w-full bg-primary text-on-primary rounded-lg py-2 mb-6 flex items-center justify-center gap-2 hover:bg-primary/90 transition-colors scale-98 active:scale-95 transition-transform font-label-md">
+<span class="material-symbols-outlined text-[18px]">add</span>
+            New Memory
+        </button>
+<!-- Main Navigation -->
+<div class="flex-1 overflow-y-auto space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-colors group" href="#">
+<span class="material-symbols-outlined text-[20px] text-on-surface-variant group-hover:text-primary transition-colors">chat_bubble</span>
+<span class="font-label-md text-label-md">Memory Feed</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-colors group" href="#">
+<span class="material-symbols-outlined text-[20px] text-on-surface-variant group-hover:text-primary transition-colors">history</span>
+<span class="font-label-md text-label-md">Recents</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-colors group" href="#">
+<span class="material-symbols-outlined text-[20px] text-on-surface-variant group-hover:text-primary transition-colors">star</span>
+<span class="font-label-md text-label-md">Starred</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-colors group" href="#">
+<span class="material-symbols-outlined text-[20px] text-on-surface-variant group-hover:text-primary transition-colors">group</span>
+<span class="font-label-md text-label-md">People</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface font-bold bg-surface-container-high rounded-lg group" href="#">
+<span class="material-symbols-outlined text-[20px] text-primary transition-colors" style="font-variation-settings: 'FILL' 1;">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+</div>
+<!-- Footer Navigation -->
+<div class="mt-auto pt-4 border-t border-outline-variant/30 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-colors group" href="#">
+<span class="material-symbols-outlined text-[20px] text-on-surface-variant group-hover:text-primary transition-colors">link</span>
+<span class="font-label-md text-label-md">Connected Accounts</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-colors group" href="#">
+<span class="material-symbols-outlined text-[20px] text-on-surface-variant group-hover:text-primary transition-colors">help</span>
+<span class="font-label-md text-label-md">Help</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-1 ml-64 min-h-screen bg-background overflow-y-auto pt-16 pb-32">
+<div class="max-w-[700px] mx-auto px-margin-desktop md:px-margin-desktop space-y-lg">
+<header class="mb-12">
+<h1 class="font-display-lg text-display-lg text-on-surface">Settings</h1>
+</header>
+<!-- Single Scrollable Card Container -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-0 overflow-hidden shadow-sm">
+<!-- 1. Profile -->
+<section class="p-8 border-b border-outline-variant/50">
+<div class="flex items-center gap-6">
+<img class="w-20 h-20 rounded-full object-cover border border-outline-variant/30" data-alt="A close up, high quality digital portrait illustration of a professional avatar, minimalist style, clean white background, subtle soft lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBemcAfdneomEam98vVghPQQk0ZgyzcNZjV_C-ZS38rybthYkjusYbzOuyM1A2GbcFQ0jfyiprgYumv1eknqyvRgwV2bkhtnXNfFlWvWjssSYB_zbKm_IFwK5oIDEcmOBpIqJtnOVr5eZpBH3AFBqn9pYtlQKM2obIX1qOQZStKmY5w2jCmc6L7FfNp-sEezFwa4DPG5WUNEMyRHrvQ_K8g8KvHf7Pm-g56t8lb8wHI5I1sOVIySVXQ">
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">user@work.com</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">Member since Oct 2026</p>
+</div>
+</div>
+</section>
+<!-- 2. Plan & Usage -->
+<section class="p-8 border-b border-outline-variant/50 flex flex-col md:flex-row md:items-start justify-between gap-6 bg-surface-bright">
+<div class="flex-1 w-full">
+<div class="flex items-center gap-3 mb-4">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Plan &amp; Usage</h3>
+<span class="bg-surface-variant text-on-surface font-label-sm text-label-sm px-2 py-1 rounded-md uppercase tracking-wide">Free</span>
+</div>
+<div class="space-y-2 max-w-sm">
+<div class="flex justify-between font-label-md text-label-md text-on-surface-variant">
+<span>Free Queries</span>
+<span>Used 45 of 50</span>
+</div>
+<div class="w-full bg-surface-container-highest rounded-full h-2 overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 90%;"></div>
+</div>
+</div>
+</div>
+<button class="shrink-0 bg-[#ea580c] text-white px-5 py-2.5 rounded-lg font-label-md text-label-md hover:bg-[#ea580c]/90 transition-colors shadow-sm whitespace-nowrap self-start">
+                        Upgrade to Pro
+                    </button>
+</section>
+<!-- 3. Connected Accounts -->
+<section class="p-8 border-b border-outline-variant/50">
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-6">Connected Accounts</h3>
+<div class="space-y-4 mb-6">
+<!-- Account Item -->
+<div class="flex items-center justify-between p-4 bg-surface rounded-lg border border-outline-variant/30">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 bg-surface-container-high rounded-full flex items-center justify-center text-on-surface">
+<span class="material-symbols-outlined">work</span>
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface">work@company.com</p>
+<div class="flex items-center gap-1.5 mt-0.5">
+<div class="w-2 h-2 rounded-full bg-green-500"></div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Connected</p>
+</div>
+</div>
+</div>
+<button class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors px-3 py-1.5 rounded hover:bg-surface-container-highest">Disconnect</button>
+</div>
+<!-- Account Item -->
+<div class="flex items-center justify-between p-4 bg-surface rounded-lg border border-outline-variant/30">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 bg-surface-container-high rounded-full flex items-center justify-center text-on-surface">
+<span class="material-symbols-outlined">mail</span>
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface">personal@gmail.com</p>
+<div class="flex items-center gap-1.5 mt-0.5">
+<div class="w-2 h-2 rounded-full bg-green-500"></div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Connected</p>
+</div>
+</div>
+</div>
+<button class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors px-3 py-1.5 rounded hover:bg-surface-container-highest">Disconnect</button>
+</div>
+</div>
+<button class="flex items-center gap-2 text-primary font-label-md text-label-md hover:bg-surface-container-highest px-4 py-2 rounded-lg transition-colors border border-outline-variant/30">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                        Add Gmail Account
+                    </button>
+</section>
+<!-- 4. Indexed Data Stats -->
+<section class="p-8 border-b border-outline-variant/50 bg-surface-bright">
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-6">Indexed Data Stats</h3>
+<div class="grid grid-cols-3 gap-4 mb-8">
+<div class="p-4 bg-surface-container-lowest border border-outline-variant/30 rounded-lg text-center">
+<span class="material-symbols-outlined text-on-surface-variant mb-2">forum</span>
+<div class="font-headline-md text-headline-md text-on-surface">12,432</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mt-1">Messages</div>
+</div>
+<div class="p-4 bg-surface-container-lowest border border-outline-variant/30 rounded-lg text-center">
+<span class="material-symbols-outlined text-on-surface-variant mb-2">attachment</span>
+<div class="font-headline-md text-headline-md text-on-surface">304</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mt-1">Attachments</div>
+</div>
+<div class="p-4 bg-surface-container-lowest border border-outline-variant/30 rounded-lg text-center">
+<span class="material-symbols-outlined text-on-surface-variant mb-2">link</span>
+<div class="font-headline-md text-headline-md text-on-surface">1,209</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mt-1">Links</div>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="px-5 py-2.5 bg-primary text-on-primary rounded-lg font-label-md text-label-md hover:bg-primary/90 transition-colors">
+                            Re-sync
+                        </button>
+<button class="px-5 py-2.5 border border-outline-variant text-on-surface rounded-lg font-label-md text-label-md hover:bg-surface-container-highest transition-colors">
+                            Clear Memory
+                        </button>
+</div>
+</section>
+<!-- 5. Preferences -->
+<section class="p-8 border-b border-outline-variant/50">
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-6">Preferences</h3>
+<div class="space-y-6">
+<div class="flex items-center justify-between">
+<div>
+<h4 class="font-label-md text-label-md text-on-surface">Theme</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Customize the interface appearance.</p>
+</div>
+<div class="flex bg-surface-container-high rounded-lg p-1 border border-outline-variant/30">
+<button class="px-4 py-1.5 font-label-sm text-label-sm rounded-md bg-surface-container-lowest shadow-sm text-on-surface">System</button>
+<button class="px-4 py-1.5 font-label-sm text-label-sm rounded-md text-on-surface-variant hover:text-on-surface transition-colors">Light</button>
+<button class="px-4 py-1.5 font-label-sm text-label-sm rounded-md text-on-surface-variant hover:text-on-surface transition-colors">Dark</button>
+</div>
+</div>
+<div class="flex items-center justify-between">
+<div>
+<h4 class="font-label-md text-label-md text-on-surface">Default Chat Scope</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Select which data sources to search by default.</p>
+</div>
+<select class="form-select bg-surface border-outline-variant rounded-lg font-label-md text-label-md text-on-surface focus:ring-primary focus:border-primary py-2 pl-3 pr-10">
+<option>All Connections</option>
+<option>Work Only</option>
+<option>Personal Only</option>
+<option>Recent (Last 30 Days)</option>
+</select>
+</div>
+</div>
+</section>
+<!-- 6. Danger Zone -->
+<section class="p-8 bg-error-container/10">
+<div class="border border-error/30 rounded-xl p-6 bg-surface-container-lowest">
+<h3 class="font-headline-sm text-headline-sm text-error mb-2">Danger Zone</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-6">Permanently delete your account and remove all associated data. This action cannot be undone.</p>
+<button class="px-5 py-2.5 border border-error text-error rounded-lg font-label-md text-label-md hover:bg-error hover:text-on-error transition-colors">
+                            Delete Account
+                        </button>
+</div>
+</section>
+</div>
+</div>
+</main>
+</body></html>

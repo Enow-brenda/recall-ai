@@ -35,7 +35,7 @@ def connect_account(
     provider = get_active_provider(db, payload.provider)
 
     state = secrets.token_urlsafe(32)
-    url = build_auth_url(state)
+    url = build_auth_url(state) 
 
     resp = JSONResponse(
         content=ok({"redirect_url": url}, "Connect flow started").model_dump()
