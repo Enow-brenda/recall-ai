@@ -10,7 +10,7 @@ Guarantees:
 - NEVER raises: a failed batch yields None placeholders so sync/search always
   continue (an email with a missing embedding is simply not searchable yet).
 - Rate-limit safe: no more than BATCH_SIZE texts per API call, a cooldown sleep
-  after every batch, and 1s/3s/5s backoff on 429/5xx retries.
+  after every batch, and 1s/3s/5s/7s/9s backoff on 429/5xx retries (5 attempts).
 - Input hygiene: each text truncated to MAX_INPUT_CHARS; empty/whitespace-only
   inputs produce None (nothing meaningful to embed).
 """
@@ -29,9 +29,9 @@ logger = logging.getLogger(__name__)
 EMBEDDING_MODEL = "gemini-embedding-001"
 EMBEDDING_DIMENSION = 1536
 MAX_INPUT_CHARS = 6000          # keep well under the 2048-token input limit
-BATCH_SIZE = 20                 # rate-limit mitigation
-BATCH_COOLDOWN_S = 0.5
-MAX_RETRIES = 3
+BATCH_SIZE = 5                  # reduced from 20 to avoid 429 rate limits
+BATCH_COOLDOWN_S = 2.0          # increased cooldown between batches
+MAX_RETRIES = 5                 # increased from 3 for more retry attempts
 RETRYABLE = {429, 500, 503, 504}
 
 _client: genai.Client | None = None
@@ -88,10 +88,11 @@ def embed_texts(
                 break
             except APIError as exc:
                 if exc.code in RETRYABLE and attempt < MAX_RETRIES:
-                    time.sleep(1 + attempt * 2)     # 1s, 3s, 5s backoff
+                    time.sleep(1 + attempt * 2)     # 1s, 3s, 5s, 7s, 9s backoff
                     continue
                 logger.error("embed batch %d failed: %s", start // BATCH_SIZE, exc)
-                vector_map = {}
+                # Do NOT reset vector_map — preserve any partial successes
+                # (API failure means no embeddings, but keep initial {} for clarity)
                 break
 
         cursor = 0

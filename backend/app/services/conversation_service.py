@@ -50,7 +50,7 @@ def add_turn(
     sources: list[dict] | None = None,
 ) -> Message:
     if direction == "user" and conv.title == "New chat" and content.strip():
-        conv.title = content.strip()[:60]
+        conv.title = content.strip()
     conv.last_modified_at = datetime.now(timezone.utc)
 
     msg = Message(

@@ -59,6 +59,12 @@ export function Settings() {
       <div className="mb-6">
         <h1 className="text-headline-md">Settings</h1>
         <p className="mt-1 text-body-sm text-muted">Manage your profile, plan, and memory sources.</p>
+        <button
+          onClick={() => navigate('/chat', { replace: true })}
+          className="mt-2 rounded-lg border border-border px-4 py-2 text-label-md text-primary transition-colors hover:bg-surface-low"
+        >
+          ← Back to chats
+        </button>
       </div>
 
       <div className="space-y-5">
@@ -78,7 +84,9 @@ export function Settings() {
           <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
             <div className="min-w-0 flex-1">
               <div className="flex items-center justify-between">
-                <p className="text-body-sm font-medium text-primary">{user?.plan.name} plan</p>
+                <p className="text-body-sm font-medium text-primary">
+          {user?.plan.name ? user.plan.name : 'Free'} plan
+        </p>
                 <p className="text-label-sm text-muted">
                   {stats?.quota_used ?? 0} / {stats?.quota_limit ?? '—'} queries today
                 </p>

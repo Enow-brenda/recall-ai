@@ -1,8 +1,10 @@
 import re
+import uuid
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
+from app.core.exceptions import QuotaExceededError
 from app.core.middleware.auth_backend import get_current_user
 from app.core.middleware.usage_guard import check_quota, increment_usage
 from app.db.db_instance import get_db
@@ -29,7 +31,13 @@ def chat_endpoint(
     db: Session = Depends(get_db),
 ):
     conv = conversation_service.get_or_create(db, user.id, payload.conversation_id)
-    conversation_service.add_turn(db, conv, "user", payload.message)
+
+    # Add user message turn first
+    try:
+        conversation_service.add_turn(db, conv, "user", payload.message)
+    except Exception:
+        db.rollback()
+        raise QuotaExceededError("Failed to record your message. Please try again.")
 
     history = conversation_service.get_history(db, conv, limit=10)
     context = [{"direction": m.direction, "content": m.content} for m in history]
@@ -39,10 +47,27 @@ def chat_endpoint(
     prompt_sources = [_llm_source(hit) for hit in hits]
     answer_text = answer(payload.message, prompt_sources)
 
+    # Build cited sources and make UUIDs serializable
     sources = _build_cited_sources(db, user.id, answer_text, hits)
-    msg = conversation_service.add_turn(
-        db, conv, "assistant", answer_text, sources=[s.model_dump() for s in sources]
-    )
+    serializable_sources = []
+    for s in sources:
+        d = s.model_dump()
+        for key, value in list(d.items()):
+            if isinstance(value, uuid.UUID):
+                d[key] = str(value)
+        serializable_sources.append(d)
+
+    # Add assistant message turn
+    try:
+        msg = conversation_service.add_turn(
+            db, conv, "assistant", answer_text, sources=serializable_sources
+        )
+    except Exception:
+        db.rollback()
+        # Don't increment usage on failure - user should not be charged
+        raise QuotaExceededError("Server is saturated. Please try again later.")
+
+    # Only increment usage after successful completion
     increment_usage(db, user)
 
     return ok(

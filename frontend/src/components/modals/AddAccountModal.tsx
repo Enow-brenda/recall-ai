@@ -105,7 +105,7 @@ export function AddAccountModal({ open, onClose, onAdded }: AddAccountModalProps
                   {isConnected(p.key) ? 'Connected' : p.is_active ? 'Available' : 'Coming soon'}
                 </p>
               </div>
-              {connectable &&
+{connectable &&
                 (busy ? (
                   <span className="flex shrink-0 items-center gap-1.5 text-label-md text-accent">
                     <Icon name="sync" size={14} className="animate-spin" /> Connecting

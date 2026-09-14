@@ -10,6 +10,7 @@ interface ChatMessageProps {
 
 export function ChatMessage({ message, streaming = false }: ChatMessageProps) {
   const isUser = message.direction === 'user'
+  const hasError = message.status === 'error'
 
   if (isUser) {
     return (
@@ -17,6 +18,9 @@ export function ChatMessage({ message, streaming = false }: ChatMessageProps) {
         <div className="max-w-[74%] rounded-lg bg-primary px-4 py-2.5 text-body-md leading-relaxed text-on-primary">
           {message.content}
         </div>
+        {hasError && (
+          <Icon name="error" size={14} className="text-danger ms-2" title="Message failed to send" />
+        )}
       </div>
     )
   }
@@ -50,6 +54,11 @@ export function ChatMessage({ message, streaming = false }: ChatMessageProps) {
                 <SourceRow key={`${s.ref_id}-${i}`} index={i} source={s} />
               ))}
             </ol>
+          </div>
+        )}
+        {hasError && (
+          <div className="mt-2 p-2 bg-danger-soft text-danger text-label-sm rounded">
+            <Icon name="error" size={12} className="text-danger" /> Message failed
           </div>
         )}
       </div>

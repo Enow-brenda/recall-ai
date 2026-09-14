@@ -30,7 +30,7 @@ type ChatAction =
   | { type: 'conversation/delete'; id: string }
   | { type: 'message/user'; conversationId: string; message: ChatMessage }
   | { type: 'message/assistant'; conversation: Conversation; message: ChatMessage }
-  | { type: 'message/error'; conversationId: string }
+  | { type: 'message/error'; conversationId: string; messageId: string }
   | { type: 'stream/start' }
   | { type: 'stream/stop' }
   | { type: 'indexing/done' }
@@ -121,8 +121,23 @@ function reducer(state: ChatState, action: ChatAction): ChatState {
         },
       }
     }
-    case 'message/error':
+    case 'message/error': {
+      const { conversationId, messageId } = action
+      const list = state.messagesByConversation[conversationId] ?? []
+      const msgIndex = list.findIndex((m) => m.id === messageId)
+      if (msgIndex >= 0) {
+        const updated = [...list]
+        updated[msgIndex].status = 'error'
+        return {
+          ...state,
+          messagesByConversation: {
+            ...state.messagesByConversation,
+            [conversationId]: updated,
+          },
+        }
+      }
       return { ...state }
+    }
     case 'stream/start':
       return { ...state, streaming: true }
     case 'stream/stop':
@@ -210,15 +225,16 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       conversationId = conversation.id
     }
 
+    const messageId = `local_${Date.now()}`
     dispatch({
       type: 'message/user',
       conversationId,
       message: {
-        id: `local_${Date.now()}`,
+        id: messageId,
         conversation_id: conversationId,
         direction: 'user',
         content,
-        status: 'sent',
+        status: 'pending',
         sources: null,
         created_at: new Date().toISOString(),
       },
@@ -228,7 +244,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       const res = await api.chat.send({ conversation_id: conversationId, message: content })
       dispatch({ type: 'message/assistant', conversation: res.conversation, message: res.message })
     } catch {
-      dispatch({ type: 'message/error', conversationId })
+      dispatch({ type: 'message/error', conversationId, messageId })
     } finally {
       dispatch({ type: 'stream/stop' })
     }
