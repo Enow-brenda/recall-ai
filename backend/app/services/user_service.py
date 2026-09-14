@@ -87,7 +87,7 @@ def delete_account(db: Session, user_id: uuid.UUID, confirm: str):
     user = db.get(User, user_id)
     if not user:
         raise NotFoundError("User not found")
-    accounts = db.get(ConnectedAccount).filter_by(user_id=user_id).all()
+    accounts = db.query(ConnectedAccount).filter(ConnectedAccount.user_id == user_id).all()
     for account in accounts:
         db.delete(account)
     db.delete(user)

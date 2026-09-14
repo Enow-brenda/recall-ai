@@ -30,6 +30,12 @@ class ConflictError(AppError):
     status_code = 409
     message = "Conflict"
 
+
 class InvalidRequestError(AppError):
     status_code = 400
     message = "Invalid request"
+
+
+class QuotaExceededError(AppError):
+    status_code = 429
+    message = "Daily query limit reached"

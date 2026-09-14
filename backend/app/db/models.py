@@ -122,6 +122,13 @@ class Email(Base):
     __table_args__ = (
         UniqueConstraint("account_id", "external_id"),
         Index("ix_emails_user_sent", "user_id", text("sent_at DESC")), # reading the index in descending order
+        Index(
+            "ix_emails_embedding_hnsw",
+            "embedding",
+            postgresql_using="hnsw",
+            postgresql_ops={"embedding": "vector_cosine_ops"},
+            postgresql_where=text("embedding IS NOT NULL"),
+        ),
     ) 
 
 # possible file attachments gotten from a connected account
@@ -149,9 +156,9 @@ class Link(Base):
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, server_default=text("gen_random_uuid()"))
     email_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("emails.id", ondelete="CASCADE"), index=True)
 
-    url: Mapped[str] = mapped_column(String(255), nullable=False)
+    url: Mapped[str] = mapped_column(Text(), nullable=False)
     domain: Mapped[str | None] = mapped_column(String(255))
-    context_snippet: Mapped[str | None] = mapped_column(String(255))
+    context_snippet: Mapped[str | None] = mapped_column(Text())
 
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 

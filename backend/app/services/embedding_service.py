@@ -1,46 +1,67 @@
-# this file contains all the embedding logic
+"""Embedding service — batch embeds texts with the Gemini API.
+
+Model + dimensionality MUST agree with the DB columns
+(emails.embedding Vector(1536), attachments.embedding Vector(1536)):
+
+    EMBEDDING_MODEL     = "gemini-embedding-001"   (override via GEMINI_EMBEDDING_MODEL)
+    EMBEDDING_DIMENSION = 1536                      (Matryoshka truncation)
+
+Guarantees:
+- NEVER raises: a failed batch yields None placeholders so sync/search always
+  continue (an email with a missing embedding is simply not searchable yet).
+- Rate-limit safe: no more than BATCH_SIZE texts per API call, a cooldown sleep
+  after every batch, and 1s/3s/5s backoff on 429/5xx retries.
+- Input hygiene: each text truncated to MAX_INPUT_CHARS; empty/whitespace-only
+  inputs produce None (nothing meaningful to embed).
+"""
 import logging
 import time
-from typing import Sequence
+from collections.abc import Sequence
 
 from google import genai
 from google.genai import types
 from google.genai.errors import APIError
 
-
 from app.config import settings
 
 logger = logging.getLogger(__name__)
 
-# constantsin an    
-
 EMBEDDING_MODEL = "gemini-embedding-001"
 EMBEDDING_DIMENSION = 1536
-MAX_INPUT_CHARS = 6000
+MAX_INPUT_CHARS = 6000          # keep well under the 2048-token input limit
+BATCH_SIZE = 20                 # rate-limit mitigation
+BATCH_COOLDOWN_S = 0.5
 MAX_RETRIES = 3
 RETRYABLE = {429, 500, 503, 504}
-BATCH_COOLDOWN_S = 0.5
-BATCH_SIZE = 20 # this is to keep the request fast
 
-_client : genai.Client | None = None
+_client: genai.Client | None = None
+
 
 def _get_client() -> genai.Client:
     global _client
     if _client is None:
-        _client = genai.Client(api_key=settings.GENAI_API_KEY)
+        _client = genai.Client(api_key=settings.gemini_api_key)
     return _client
 
-def _normalize_text(text: str) -> str:
+
+def get_genai_client() -> genai.Client:
+    """Public alias so LLM/search/cal services share one singleton client
+    (should be preferred over building clients ad-hoc)."""
+    return _get_client()
+
+
+def _normalize_text(text: str | None) -> str | None:
     if not text or not text.strip():
         return None
     return text[:MAX_INPUT_CHARS]
 
+
 def embed_texts(
-        texts: Sequence[str |None],
-        *,
-        task_type: str ="RETRIEVAL_DOCUMENT",
+    texts: Sequence[str | None],
+    *,
+    task_type: str = "RETRIEVAL_DOCUMENT",
 ) -> list[list[float] | None]:
-   
+    """Embed a batch of texts. Empty/invalid inputs -> None. Never raises."""
     payloads = [_normalize_text(t) for t in texts]
     results: list[list[float] | None] = []
 
@@ -67,7 +88,7 @@ def embed_texts(
                 break
             except APIError as exc:
                 if exc.code in RETRYABLE and attempt < MAX_RETRIES:
-                    time.sleep(1 + attempt * 2)         # 1s, 3s, 5s backoff
+                    time.sleep(1 + attempt * 2)     # 1s, 3s, 5s backoff
                     continue
                 logger.error("embed batch %d failed: %s", start // BATCH_SIZE, exc)
                 vector_map = {}
@@ -90,5 +111,5 @@ def embed_text(
     *,
     task_type: str = "RETRIEVAL_DOCUMENT",
 ) -> list[float] | None:
+    """Embed a single text. Returns None when empty/invalid or on failure."""
     return embed_texts([text], task_type=task_type)[0]
-   

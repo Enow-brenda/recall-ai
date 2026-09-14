@@ -10,6 +10,8 @@ from app.db.connector import SessionLocal
 
 from app.config import settings
 from app.core.exceptions import InvalidRequestError
+from app.services.attachment_service import extract_text
+from app.services.embedding_service import embed_text
 from app.db.models import ConnectedAccount, Email, Attachment,Link,User
 import httpx
 import base64
@@ -88,7 +90,7 @@ def sync_account(db, account: ConnectedAccount) -> int:
         if mid in already_stored:
             continue
         raw = service.users().messages().get(userId="me", id=mid).execute()
-        email_row, att_rows, link_rows = _parse_message(account.user_id,account.id, mid, raw)
+        email_row, att_rows, link_rows = _parse_message(account.user_id,account.id, mid, raw, service)
         emails_to_insert.append(email_row)
         attachments_to_insert.extend(att_rows)
         links_to_insert.extend(link_rows)
@@ -111,7 +113,7 @@ def sync_account(db, account: ConnectedAccount) -> int:
 
     return len(emails_to_insert)
 
-def _parse_message(user_id, account_id, msg_id: str, raw: dict) :
+def _parse_message(user_id, account_id, msg_id: str, raw: dict, service=None) :
     headers = {h["name"].lower(): h["value"] for h in raw["payload"].get("headers", [])}
     body = _extract_body(raw["payload"])
 
@@ -131,6 +133,7 @@ def _parse_message(user_id, account_id, msg_id: str, raw: dict) :
         "sender": headers.get("from"),
         "subject": headers.get("subject"),
         "raw_body": body,
+        "embedding": embed_text(f"{headers.get('subject') or ''}\n\n{body or ''}"),
         "has_attachment": any(p.get("filename") for p in parts),
         "has_link": _has_links(body),
         "sent_at": sent_at,
@@ -140,22 +143,43 @@ def _parse_message(user_id, account_id, msg_id: str, raw: dict) :
         if not p.get("filename"):
             continue
         body_info = p.get("body", {}) or {}
-        att_rows.append({
+        att_row = {
             "_message_id": msg_id,
             "filename": p["filename"],
             "mime_type": p.get("mimeType"),
             "size_bytes": body_info.get("size"),
             "gmail_attachment_id": body_info.get("attachmentId"),
-        })
+        }
+        extracted = _download_and_extract(service, msg_id, att_row)
+        if extracted:
+            att_row["extracted_text"] = extracted[:6000]
+            att_row["embedding"] = embed_text(extracted)
+        att_rows.append(att_row)
     link_rows = []
-    urls = _extract_urls(body)
-    for url in urls:
+    for link in _extract_links(body):
         link_rows.append({
             "_message_id": msg_id,
-            "domain": _extract_domain(url),
-            "url": url,
+            "domain": _extract_domain(link["url"]),
+            "url": link["url"],
+            "context_snippet": link["context_snippet"],
         })
     return email_row, att_rows, link_rows
+
+
+def _download_and_extract(service, msg_id: str, att_row: dict) -> str | None:
+    """Best-effort: fetch attachment bytes and extract text. None on any failure."""
+    att_id = att_row.get("gmail_attachment_id")
+    if service is None or not att_id:
+        return None
+    try:
+        att = service.users().messages().attachments().get(
+            userId="me", messageId=msg_id, id=att_id
+        ).execute()
+        data = base64.urlsafe_b64decode(att["data"])
+        return extract_text(att_row.get("filename"), data)
+    except Exception:
+        logger.exception("Attachment extraction failed for msg %s (att %s)", msg_id, att_id)
+        return None
 
 
 def _extract_body(payload: dict) -> str:
@@ -181,8 +205,21 @@ def _flatten_parts(payload: dict) -> list[dict]:
 def _has_links(body: str) -> bool:
     return bool(URL_REGEX.search(body))
 
-def _extract_urls(body: str) -> list[str]:
-    return list(set(URL_REGEX.findall(body)))     # deduplicate per-message
+
+def _extract_links(body: str) -> list[dict]:
+    """Extract deduplicated links with a short surrounding snippet each."""
+    seen = set()
+    results = []
+    for match in URL_REGEX.finditer(body):
+        url = match.group()
+        if url in seen:
+            continue
+        seen.add(url)
+        start = max(0, match.start() - 80)
+        end = min(len(body), match.end() + 80)
+        snippet = " ".join(body[start:end].split())[:200]
+        results.append({"url": url, "context_snippet": snippet})
+    return results
 
 def _extract_domain(url: str) -> str:
     return urlparse(url).netloc

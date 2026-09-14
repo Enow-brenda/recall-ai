@@ -25,9 +25,9 @@ class Settings(BaseSettings):
     jwt_secret: str = "change-me-in-env"
     jwt_algorithm: str = "HS256"
     jwt_expire_days: int = 7
-    app_origin: str = "http://localhost:5173"
+    app_origin: str = "https://macgpt-recall-ai.netlify.app/chat"
 
-    cors_origins: list[str] = ["http://localhost:5173", "http://localhost:3000"]
+    cors_origins: list[str] = ["https://macgpt-recall-ai.netlify.app", "http://localhost:5173"]
 
 
 @lru_cache
