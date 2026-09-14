@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import type { UsageStats, UserProfile } from '../api/types'
 import { api } from '../api/client'
 import { useAuth } from '../context/AuthContext'
@@ -9,15 +10,40 @@ import { ProgressBar } from '../components/ProgressBar'
 import { ToggleSwitch } from '../components/ToggleSwitch'
 
 export function Settings() {
-  const { user } = useAuth()
+  const { user, logout } = useAuth()
   const chat = useChat()
   const ui = useUI()
+  const navigate = useNavigate()
   const [stats, setStats] = useState<UsageStats | null>(null)
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [confirmText, setConfirmText] = useState('')
+  const [deleting, setDeleting] = useState(false)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
 
   useEffect(() => {
     api.users.stats().then(setStats)
   }, [])
+
+  const requestDelete = () => {
+    setConfirmText('')
+    setDeleteError(null)
+    setConfirmDelete(true)
+  }
+
+  const handleDelete = async () => {
+    if (confirmText !== 'DELETE' || deleting) return
+    setDeleting(true)
+    setDeleteError(null)
+    try {
+      await api.users.delete(confirmText)
+    } catch (e) {
+      setDeleteError(e instanceof Error ? e.message : 'Failed to delete account')
+      setDeleting(false)
+      return
+    }
+    await logout()
+    navigate('/', { replace: true })
+  }
 
   const statsGrid = stats
     ? [
@@ -149,26 +175,34 @@ export function Settings() {
               <input
                 type="text"
                 placeholder="DELETE"
-                className="w-40 rounded-lg border border-danger bg-card px-3 py-2 text-body-sm outline-none focus:border-danger"
+                value={confirmText}
+                onChange={(e) => setConfirmText(e.target.value)}
+                className="w-40 rounded-lg border border-danger bg-card px-3 py-2 text-body-sm text-primary outline-none focus:border-danger"
               />
               <button
                 type="button"
-                className="rounded-lg bg-danger px-4 py-2 text-label-md text-on-primary transition-colors hover:opacity-90"
+                onClick={() => void handleDelete()}
+                disabled={confirmText !== 'DELETE' || deleting}
+                className="rounded-lg bg-danger px-4 py-2 text-label-md text-on-primary transition-colors hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                Delete my account
+                {deleting ? 'Deleting…' : 'Delete my account'}
               </button>
               <button
                 type="button"
                 onClick={() => setConfirmDelete(false)}
+                disabled={deleting}
                 className="rounded-lg border border-border px-4 py-2 text-label-md text-primary hover:bg-card"
               >
                 Cancel
               </button>
+              {deleteError && (
+                <p className="w-full text-label-sm text-danger">{deleteError}</p>
+              )}
             </div>
           ) : (
             <button
               type="button"
-              onClick={() => setConfirmDelete(true)}
+              onClick={requestDelete}
               className="mt-4 rounded-lg border border-danger/40 px-4 py-2 text-label-md text-danger transition-colors hover:bg-danger hover:text-on-primary"
             >
               Request deletion

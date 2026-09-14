@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { USE_MOCK_API } from '../api/client'
+import { api, USE_MOCK_API } from '../api/client'
 import { Icon } from '../components/Icon'
 import { Logo } from '../components/Logo'
 
@@ -71,6 +71,8 @@ const NAV_LINKS = [
 export function Landing() {
   const navigate = useNavigate()
   const [contact, setContact] = useState({ name: '', email: '', message: '' })
+  const [sending, setSending] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const [sent, setSent] = useState(false)
 
   const goToApp = () => {
@@ -82,11 +84,24 @@ export function Landing() {
     }
   }
 
-  const onSubmit = (e: FormEvent) => {
+  const onSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    setSent(true)
-    setContact({ name: '', email: '', message: '' })
-    window.setTimeout(() => setSent(false), 4000)
+    setSending(true)
+    setError(null)
+    try {
+      await api.support.send({
+        name: contact.name.trim(),
+        email: contact.email.trim(),
+        message: contact.message.trim(),
+      })
+      setContact({ name: '', email: '', message: '' })
+      setSent(true)
+      window.setTimeout(() => setSent(false), 4000)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Something went wrong — please try again.')
+    } finally {
+      setSending(false)
+    }
   }
 
   return (
@@ -398,10 +413,12 @@ export function Landing() {
             </div>
             <button
               type="submit"
-              className="w-full rounded-lg bg-primary py-2.5 text-label-md font-medium text-on-primary transition-colors hover:bg-primary-dim"
+              disabled={sending}
+              className="w-full rounded-lg bg-primary py-2.5 text-label-md font-medium text-on-primary transition-colors hover:bg-primary-dim disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Send Message
+              {sending ? 'Sending…' : 'Send Message'}
             </button>
+            {error && <p className="text-center text-label-md text-danger">{error}</p>}
             {sent && (
               <p className="text-center text-label-md text-success">
                 Thanks — your message has been received.

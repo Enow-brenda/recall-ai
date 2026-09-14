@@ -62,6 +62,8 @@ export const realApi: Api = {
   users: {
     profile: () => request<UserProfile>('/users/me'),
     stats: () => request<UsageStats>('/users/me/stats'),
+    delete: (confirm) =>
+      request<void>('/users/me', { method: 'DELETE', body: JSON.stringify({ confirm }) }),
   },
 
   accounts: {
@@ -93,6 +95,14 @@ export const realApi: Api = {
       request<ChatResponse>('/chat', {
         method: 'POST',
         body: JSON.stringify(req),
+      }),
+  },
+
+  support: {
+    send: (payload) =>
+      request<void>('/support', {
+        method: 'POST',
+        body: JSON.stringify(payload),
       }),
   },
 }

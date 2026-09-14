@@ -59,6 +59,12 @@ export const mockApi: Api = {
       await delay(350)
       return { ...MOCK_STATS }
     },
+    async delete(confirm: string) {
+      await delay(500)
+      if (confirm !== 'DELETE') throw new Error("Confirmation string does not match 'DELETE'")
+      conversations.splice(0, conversations.length)
+      messagesByConversation.clear()
+    },
   },
 
   accounts: {
@@ -160,6 +166,12 @@ export const mockApi: Api = {
       conv.last_modified_at = now
 
       return { conversation: { ...conv }, message: { ...assistantMsg } }
+    },
+  },
+
+  support: {
+    async send() {
+      await delay(900)
     },
   },
 }

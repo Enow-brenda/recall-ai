@@ -131,6 +131,7 @@ export interface Api {
   users: {
     profile: () => Promise<UserProfile>
     stats: () => Promise<UsageStats>
+    delete: (confirm: string) => Promise<void>
   }
   accounts: {
     providers: () => Promise<ProviderInfo[]>
@@ -148,6 +149,16 @@ export interface Api {
   chat: {
     send: (req: ChatRequest) => Promise<ChatResponse>
   }
+  support: {
+    send: (payload: SupportRequest) => Promise<void>
+  }
+}
+
+export interface SupportRequest {
+  name?: string
+  email?: string
+  category?: string
+  message: string
 }
 
 /** Public client surface exposed to components (narrower than `Api`). */
@@ -157,4 +168,5 @@ export interface RecallApi {
   accounts: Api['accounts']
   conversations: Api['conversations']
   chat: Api['chat']
+  support: Api['support']
 }

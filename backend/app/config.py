@@ -29,6 +29,13 @@ class Settings(BaseSettings):
 
     cors_origins: list[str] = ["https://macgpt-recall-ai.netlify.app", "http://localhost:5173"]
 
+    # SMTP — used by POST /support to send contact-form emails
+    smtp_host: str = "smtp.gmail.com"
+    smtp_port: int = 465
+    smtp_username: str = ""
+    smtp_password: str = ""
+    support_recipient: str = ""
+
 
 @lru_cache
 def get_settings() -> Settings:

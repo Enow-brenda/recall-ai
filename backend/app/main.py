@@ -10,6 +10,7 @@ from app.core.logging import setup_logging
 from app.routers.accounts_controller import router as accounts_router
 from app.routers.conversations_controller import router as conversations_router
 from app.routers.search_controller import router as search_router
+from app.routers.support_controller import router as support_router
 from app.routers.user_controller import router as user_controller_router
 
 setup_logging()
@@ -49,4 +50,6 @@ app.include_router(accounts_router, prefix="/accounts", tags=["Accounts"])
 
 app.include_router(conversations_router, prefix="/conversations", tags=["Conversations"])
 
-app.include_router(search_router, tags=["Chat"]) 
+app.include_router(search_router, tags=["Chat"])
+
+app.include_router(support_router) 
