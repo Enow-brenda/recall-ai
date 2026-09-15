@@ -1,10 +1,14 @@
+import logging
+import smtplib
 import time
 
-from fastapi import APIRouter, BackgroundTasks, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request
 
 from app.schemas.common import ok
 from app.schemas.support import SupportRequest
-from app.services.support_service import send_support_email
+from app.services.support_service import SMTPNotConfiguredError, send_support_email
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=["Support"])
 
@@ -30,9 +34,24 @@ def _check_rate_limit(ip: str) -> None:
 def support(
     payload: SupportRequest,
     request: Request,
-    background_tasks: BackgroundTasks,
 ):
     ip = request.client.host if request.client else "unknown"
     _check_rate_limit(ip)
-    background_tasks.add_task(send_support_email, payload)
-    return ok(None, "Message received")
+    # Send inline (with a timeout) so the response reflects the real outcome —
+    # a background task would return "message received" while the email silently
+    # never goes out.
+    try:
+        send_support_email(payload)
+    except SMTPNotConfiguredError as exc:
+        logger.error("Support email misconfigured: %s", exc)
+        raise HTTPException(
+            status_code=503,
+            detail="Support email is not configured on the server.",
+        ) from exc
+    except smtplib.SMTPException as exc:
+        logger.exception("Sending support email failed")
+        raise HTTPException(
+            status_code=502,
+            detail="Could not send your message — please try again shortly.",
+        ) from exc
+    return ok(None, "Message sent")
