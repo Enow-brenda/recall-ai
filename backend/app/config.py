@@ -40,6 +40,13 @@ class Settings(BaseSettings):
     jwt_expire_days: int = 7
     app_origin: str = "https://macgpt-recall-ai.netlify.app/chat"
 
+    # Session cookie flags. Local same-site dev stays SameSite=Lax / non-secure;
+    # a cross-site frontend (Netlify) + HTTPS API (Render) needs SameSite=None;
+    # Secure or the browser drops the cookie from API requests. Both are
+    # auto-derived from `environment == "production"` and can be forced via env.
+    auth_cookie_secure: bool | None = None
+    auth_cookie_samesite: str | None = None
+
     cors_origins: list[str] = ["https://macgpt-recall-ai.netlify.app", "http://localhost:5173"]
 
     # SMTP — used by POST /support to send contact-form emails
@@ -56,3 +63,20 @@ def get_settings() -> Settings:
 
 
 settings = get_settings()
+
+
+def auth_cookie_flags() -> tuple[bool, str]:
+    """Return the (secure, samesite) pair for the session cookie.
+
+    Cross-site deployments (frontend and API on different registrable domains)
+    require SameSite=None + Secure, otherwise the browser won't attach the cookie
+    to cross-site fetch() requests and every API call returns 401. Same-site dev
+    (localhost frontend -> localhost API) keeps Lax / non-secure.
+    """
+    secure = (
+        settings.auth_cookie_secure
+        if settings.auth_cookie_secure is not None
+        else settings.environment == "production"
+    )
+    samesite = settings.auth_cookie_samesite or ("none" if secure else "lax")
+    return secure, samesite

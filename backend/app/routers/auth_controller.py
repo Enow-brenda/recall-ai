@@ -6,7 +6,7 @@ from fastapi.responses import RedirectResponse, JSONResponse
 from sqlalchemy.orm import Session
 from fastapi import BackgroundTasks
 
-from app.config import settings
+from app.config import auth_cookie_flags, settings
 from app.core.exceptions import AuthenticationError, InvalidRequestError
 from app.core.middleware.auth_backend import (
     SESSION_COOKIE,
@@ -27,6 +27,25 @@ from app.services.auth_service import (
 )
 # controller for all the auth endpoints
 router  = APIRouter(tags=["Auth"]) 
+
+
+def _set_session_cookie(resp, token: str) -> None:
+    secure, samesite = auth_cookie_flags()
+    resp.set_cookie(
+        SESSION_COOKIE,
+        token,
+        httponly=True,
+        samesite=samesite,
+        secure=secure,
+        path="/",
+        max_age=settings.jwt_expire_days * 86400,
+    )
+
+
+def _clear_session_cookie(resp) -> None:
+    secure, _ = auth_cookie_flags()
+    # mirror path/secure so the stored cookie actually gets deleted
+    resp.delete_cookie(SESSION_COOKIE, path="/", secure=secure) 
 
 @router.get("/login")
 def login():
@@ -74,8 +93,7 @@ def callback(background_tasks: BackgroundTasks, code: str, state: str, request: 
 
     token = create_access_token(user.id)
     resp = RedirectResponse(settings.app_origin or "/")
-    resp.set_cookie("recall_token", token, httponly=True, samesite="lax",
-                    max_age=settings.jwt_expire_days * 86400)
+    _set_session_cookie(resp, token)
     resp.delete_cookie(OAUTH_STATE_COOKIE)                    # cleanup
     resp.delete_cookie(OAUTH_INTENT_COOKIE)
     return resp
@@ -83,8 +101,8 @@ def callback(background_tasks: BackgroundTasks, code: str, state: str, request: 
 @router.post("/logout")
 def logout():
     payload = ok(None, "Logged out")
-    resp = JSONResponse(content=payload.model_dump())  
-    resp.delete_cookie(SESSION_COOKIE)
+    resp = JSONResponse(content=payload.model_dump())
+    _clear_session_cookie(resp)
     return resp
 
 

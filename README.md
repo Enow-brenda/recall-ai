@@ -92,6 +92,7 @@ Copy `.env.example` to `.env` and fill it in:
 | `OAUTH_REDIRECT_URI` | yes | `http://localhost:8000/auth/callback` |
 | `JWT_SECRET` | yes | `python -c "import secrets; print(secrets.token_urlsafe(48))"` |
 | `APP_ORIGIN` | yes | Where Google returns after sign-in (`http://localhost:5173/auth/callback` locally) |
+| `ENVIRONMENT` | no | `dev` default; set `production` on the deployed API — the session cookie becomes `SameSite=None; Secure` so the frontend (Netlify) can send it cross-site to the API host (Render). Force with `AUTH_COOKIE_SECURE` / `AUTH_COOKIE_SAMESITE` if needed. |
 | `OPENROUTER_API_KEY` | no | Free chat generation; leave empty to stay on Gemini |
 | `OPENROUTER_BASE_URL` / `OPENROUTER_MODEL` | no | Defaults to `openrouter.ai/api/v1` / `openrouter/free` |
 | `LLM_PROVIDER` | no | `auto` (OpenRouter only if key set) \| `gemini` \| `openrouter` |
