@@ -32,7 +32,7 @@ Recall is not an inbox replacement. It's a lightweight, chat-first search layer 
 | Frontend | React 19, Vite 8, TypeScript, Tailwind CSS 4, react-router |
 | Deploy | Frontend on Netlify (SPA redirects), backend self-hosted |
 
-The complete database schema and the reasoning behind every design decision live in [docs/DATABASE_DESIGN.md](docs/DATABASE_DESIGN.md).
+The complete database schema and the reasoning behind every design decision live in [docs/DATABASE_DESIGN.md](docs/DATABASE_DESIGN.md). For how the pieces fit together, see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md); for the interactive spec, open `/docs` while the backend runs, or reference [docs/API.md](docs/API.md).
 
 ## Project Structure
 

@@ -60,7 +60,7 @@ PLAN ──1:N──> USER <──1:N── CONVERSATION ──1:N── MESSAGE
 
 MESSAGE.sources (JSONB) ──references──> Email / Attachment / Link ids
 
-EventCandidate (email_id FK) — deferred to Phase 2 migration
+EventCandidate (email_id FK) — planned addition, not yet shipped
 ```
 
 ## 3. Cardinalities & Delete Behavior
@@ -105,6 +105,7 @@ a deploy.
 |---|---|---|
 | id | UUID PK | |
 | name | TEXT UNIQUE | `"free"`, `"pro"` |
+| price | NUMERIC(10,2) | monthly price, shown on the pricing/Settings UI |
 | max_daily_queries | INT | `-1` = unlimited |
 | memory_limit_gb | NUMERIC(6,2) | quota display |
 | is_active | BOOL | default true |
@@ -115,10 +116,10 @@ a deploy.
 | Column | Type | Notes |
 |---|---|---|
 | id | UUID PK | |
-| name | TEXT null | from Google profile |
-| primary_email | TEXT UNIQUE | login identity |
-| profile_picture_url | TEXT null | Google avatar |
-| plan_id | FK → Plan | default free tier |
+| name | STRING(255), NOT NULL | from Google profile |
+| primary_email | STRING(255) UNIQUE | login identity |
+| profile_picture_url | STRING(255) null | Google avatar |
+| plan_id | FK → Plan, null | assigned the `free` plan at signup by code |
 | plan_usage | INT | queries used today; reset daily |
 | last_plan_reset | TIMESTAMPTZ | quota reset marker |
 | created_at | TIMESTAMPTZ | |
@@ -147,8 +148,8 @@ One granted access from a user to a mailbox/number on a provider.
 | id | UUID PK | |
 | user_id | FK → User CASCADE | owner |
 | provider_id | FK → Provider RESTRICT | which service |
-| account_identifier | TEXT | email today; phone number later |
-| display_label | TEXT null | "Work", "Personal" |
+| account_identifier | STRING(50) | email today; phone number later |
+| display_label | STRING(50) NOT NULL | defaults to the account email in code; "Work"/"Personal" later |
 | credentials | JSONB | `{access_token, refresh_token}` for OAuth |
 | is_active | BOOL | user can toggle a connection off |
 | connected_at | TIMESTAMPTZ | |
@@ -166,12 +167,12 @@ next to the chat table.
 | id | UUID PK | |
 | user_id | FK → User CASCADE | denormalized tenant scope |
 | account_id | FK → ConnectedAccount CASCADE | source mailbox |
-| external_id | TEXT | provider's immutable message id |
-| thread_id | TEXT null | Gmail deep-linking |
-| sender | TEXT null | `"Name <addr>"` |
-| subject | TEXT null | |
+| external_id | STRING(255) | provider's immutable message id |
+| thread_id | STRING(255) null | Gmail deep-linking |
+| sender | STRING(255) null | `"Name <addr>"` |
+| subject | STRING(255) null | |
 | raw_body | TEXT | stored body text (see hybrid model) |
-| summary | TEXT null | LLM-generated, Phase 2 |
+| summary | STRING(255) null | reserved — stays NULL in v1 |
 | embedding | VECTOR(1536) null | filled at ingest |
 | has_attachment | BOOL | fast filters |
 | has_link | BOOL | |
@@ -197,9 +198,9 @@ Metadata + routing only in v1. Binaries are never stored.
 | mime_type | TEXT null | |
 | size_bytes | INT null | |
 | gmail_attachment_id | TEXT null | re-fetch via Gmail API if ever needed |
-| extracted_text | TEXT null | reserved — Phase 2 document memory |
-| embedding | VECTOR(1536) null | reserved — Phase 2 |
-| version_guess | TEXT null | reserved — "v1"/"v2"/"final" heuristic |
+| extracted_text | TEXT null | **live in v1** — filled at ingest for PDF/DOCX (and other text-extractible types) by `attachment_service` |
+| embedding | VECTOR(1536) null | **live in v1** — populated alongside `extracted_text`; searched by `search_service` |
+| version_guess | TEXT null | reserved — "v1"/"v2"/"final" heuristic not shipped yet |
 | created_at | TIMESTAMPTZ | |
 
 ### 4.7 Link
@@ -231,7 +232,7 @@ Metadata + routing only in v1. Binaries are never stored.
 | conversation_id | FK → Conversation CASCADE | |
 | direction | message_direction | who spoke |
 | content | TEXT | raw turn text |
-| status | message_status | delivery state |
+| status | message_status | delivery state — defaults to `sent` |
 | sources | JSONB null | assistant turns only — evidence cards |
 | embedding | VECTOR(1536) null | reserved; chat-history search is out of scope in v1 |
 | created_at | TIMESTAMPTZ | |
@@ -272,8 +273,10 @@ A `sources` card shape (illustrative):
      authenticated viewer; every evidence card deep-links to Gmail via
      `thread_id`. Storing files would add object storage, security surface,
      and zero user value.
-   - Attachment *text* extraction is deferred to Phase 2 (nullable columns
-     already reserved, so no future breaking migration).
+   - Attachment *text* extraction is shipped in v1: on ingest, PDF/DOCX (and
+     other supported types) are downloaded, text-extracted, embedded, and
+     stored in `extracted_text`/`embedding`, making attachment contents
+     searchable — no file bytes are ever persisted.
 
 4. **Idempotent ingestion via `external_id`.** Gmail's immutable message id,
    unique per `(account_id, external_id)`, lets sync jobs run repeatedly
@@ -308,9 +311,10 @@ A `sources` card shape (illustrative):
    quota needs stored state (`plan_usage`, `last_plan_reset`) because it must
    increment cheaply and reset deterministically.
 
-10. **EventCandidate deferred, not dropped.** Event extraction is Phase 2
-    work; creating the table now would violate lean-v1. Alembic makes adding
-    it later a single forward migration with no edits to existing tables.
+10. **EventCandidate planned, not shipped.** Event extraction (meeting/date
+     detection → calendar proposal) is on the roadmap but has no table yet.
+     Adding it later is a single forward migration with no edits to existing
+     tables.
 
 11. **Native PG enums for fixed vocabularies.** `message_direction`, etc., are
     closed sets enforced by the type system. Anything expected to grow
@@ -344,13 +348,25 @@ A `sources` card shape (illustrative):
 
 ---
 
-## 7. Evolution Path (Phase 2+)
+## 7. Evolution Path
 
-- **Migration `000X_add_event_candidates`:** EventCandidate table (FK →
-  Email), status enum; extraction pipeline populates it.
-- **Attachment memory backfill:** populate `extracted_text` + `embedding` for
-  PDF/DOCX attachments; add `version_guess` heuristic pass.
-- **If scale demands:** move embeddings to a dedicated store behind
-  `search_service.py`; schema unchanged for everything else.
+**Shipped in v1:** attachment text extraction + search, link extraction/dedup +
+search, conversation persistence, multi-account, daily quota gating, live usage
+& storage stats.
+
+**Migration history:**
+- `b20e94ea5403_initial_schema.py` — full v1 schema
+- `0002_fix_raw_body.py` — `emails.raw_body` `String(255)` → `Text`
+- `0003_fix_link_url_and_snippet.py` — `links.url`/`context_snippet` → `Text`
+
+**Still ahead:**
+- **`000X_add_event_candidates`:** EventCandidate table (FK → Email) + status
+  enum; extraction pipeline populates it.
+- **Attachment version heuristic:** populate `attachments.version_guess`
+  ("v1"/"v2"/"final" pass) — column already reserved.
+- **Chat-history search:** `messages.embedding` is reserved and stays NULL;
+  wiring it up is opt-in later.
 - **Multi-provider future:** WhatsApp/SMS rows reuse ConnectedAccount with
   `account_identifier` = phone number; no structural change.
+- **If scale demands:** move embeddings to a dedicated store behind
+  `search_service.py`; schema unchanged for everything else.
