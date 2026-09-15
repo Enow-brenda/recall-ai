@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useParams } from 'react-router-dom'
 import { useChat } from '../context/ChatContext'
 import { ChatMessage } from '../components/ChatMessage'
@@ -16,6 +16,7 @@ const SUGGESTIONS = [
 export function Chat() {
   const { conversationId } = useParams()
   const chat = useChat()
+  const scrollRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (conversationId && conversationId !== chat.activeConversationId) {
@@ -28,10 +29,18 @@ export function Chat() {
     : null
   const isEmpty = !activeMessages || activeMessages.length === 0
 
+  useEffect(() => {
+    const el = scrollRef.current
+    if (el) el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' })
+  }, [activeMessages, chat.streaming])
+
   return (
-    <div className="flex h-screen flex-col">
+    <div className="flex min-h-0 flex-1 flex-col">
       {/* Message area */}
-      <div className="hide-scrollbar flex-1 overflow-y-auto px-4 py-6 md:px-8">
+      <div
+        ref={scrollRef}
+        className="hide-scrollbar flex-1 overflow-y-auto px-4 py-6 md:px-8"
+      >
         <div className="mx-auto w-full max-w-[800px] space-y-6">
           {chat.indexing ? (
             <IndexingState />

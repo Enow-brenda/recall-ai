@@ -59,12 +59,6 @@ export function Settings() {
       <div className="mb-6">
         <h1 className="text-headline-md">Settings</h1>
         <p className="mt-1 text-body-sm text-muted">Manage your profile, plan, and memory sources.</p>
-        <button
-          onClick={() => navigate('/chat', { replace: true })}
-          className="mt-2 rounded-lg border border-border px-4 py-2 text-label-md text-primary transition-colors hover:bg-surface-low"
-        >
-          ← Back to chats
-        </button>
       </div>
 
       <div className="space-y-5">
@@ -96,7 +90,7 @@ export function Settings() {
                 value={((stats?.quota_used ?? 0) / Math.max(stats?.quota_limit ?? 1, 1)) * 100}
               />
               <p className="mt-2 text-label-sm text-muted">
-                Resets in {user ? daysLeft(user.last_plan_reset) : 0} day(s)
+                Resets at midnight (UTC)
               </p>
             </div>
             <button
@@ -160,13 +154,31 @@ export function Settings() {
                   <Icon name={s.icon} size={16} className="text-accent" />
                 </span>
                 <p className="mt-3 text-headline-sm">{s.value}</p>
-                <p className="text-label-sm text-muted">{s.label}</p>
+                <p
+                  title={
+                    s.label === 'Messages sent'
+                      ? 'Chat turns currently stored in your account — deleting a conversation removes its messages from this count.'
+                      : undefined
+                  }
+                  className="text-label-sm text-muted"
+                >
+                  {s.label}
+                </p>
               </div>
             ))}
           </div>
-          <p className="mt-3.5 text-label-sm text-muted">
-            {stats ? formatBytes((stats.quota_used / Math.max(stats.quota_limit ?? 1, 1)) * 50) : ''} of 50 GB memory used
-          </p>
+          <div className="mt-3.5">
+            <p className="text-label-sm text-muted">
+              {stats ? formatStorage(stats.storage_used) : '—'} of{' '}
+              {user?.plan.memory_limit_gb ? formatGB(user.plan.memory_limit_gb) : '—'} used
+            </p>
+            {stats && user?.plan.memory_limit_gb ? (
+              <ProgressBar
+                className="mt-2"
+                value={(stats.storage_used / (user.plan.memory_limit_gb * 1024 ** 3)) * 100}
+              />
+            ) : null}
+          </div>
         </Section>
 
         {/* Danger zone */}
@@ -253,10 +265,12 @@ function Avatar({ user }: { user: UserProfile | null }) {
   )
 }
 
-function daysLeft(iso: string) {
-  return Math.max(1, 24 - Math.floor((Date.now() - +new Date(iso)) / 86_400_000))
+function formatGB(gb: number) {
+  return gb < 1 ? `${Math.round(gb * 1000)} MB` : `${gb.toFixed(1)} GB`
 }
 
-function formatBytes(gb: number) {
-  return gb < 1 ? `${Math.round(gb * 1000)} MB` : `${gb.toFixed(1)} GB`
+function formatStorage(bytes: number) {
+  if (bytes >= 1024 ** 3) return `${(bytes / 1024 ** 3).toFixed(2)} GB`
+  if (bytes >= 1024 ** 2) return `${Math.max(1, Math.round(bytes / 1024 ** 2))} MB`
+  return `${Math.max(1, Math.round(bytes / 1024))} KB`
 }

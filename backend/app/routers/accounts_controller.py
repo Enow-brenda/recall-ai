@@ -17,7 +17,7 @@ from app.services.auth_service import (
     OAUTH_STATE_COOKIE,
     build_auth_url,
 )
-from app.services.gmail_service import run_initial_sync
+from app.services.gmail_service import sync_account_by_id
 from app.services.provider_service import get_active_provider
 
 router = APIRouter(tags=["Accounts"])
@@ -77,8 +77,13 @@ def sync_account_endpoint(
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    account = _get_owned_account(db, account_id, user.id)
-    background_tasks.add_task(run_initial_sync, user.id, account.account_identifier)
+    # verify ownership (404 if not owned) before scheduling the background sync
+    _get_owned_account(db, account_id, user.id)
+    # Close the request transaction BEFORE the long background sync — the request
+    # session stays open until the background task finishes, and Neon kills
+    # connections idle in a transaction (that turned the teardown commit into a 500).
+    db.commit()
+    background_tasks.add_task(sync_account_by_id, account_id)
     return ok(None, "Sync started")
 
 

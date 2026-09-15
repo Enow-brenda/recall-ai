@@ -11,6 +11,8 @@ interface ChatMessageProps {
 export function ChatMessage({ message, streaming = false }: ChatMessageProps) {
   const isUser = message.direction === 'user'
   const hasError = message.status === 'error'
+  const content = message.content ?? ''
+  const body = content.trim() ? content : isUser ? content : 'No response'
 
   if (isUser) {
     return (
@@ -41,7 +43,7 @@ export function ChatMessage({ message, streaming = false }: ChatMessageProps) {
         </div>
         <div className="rounded-lg border border-border bg-card px-4 py-3 text-body-md leading-relaxed text-primary">
           <div className="prose prose-slate max-w-none prose-p:my-2 prose-strong:font-semibold prose-strong:text-primary">
-            <Markdown>{message.content}</Markdown>
+            <Markdown>{body}</Markdown>
           </div>
         </div>
         {message.sources && message.sources.length > 0 && (

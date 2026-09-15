@@ -29,7 +29,6 @@ def build_auth_url(state: str) -> str:
         "response_type": "code",
         "scope": " ".join(SCOPES),
         "access_type": "offline",
-        "prompt": "consent select_account",
         "include_granted_scopes": "true",
         "state": state, # preventing csrf
     })

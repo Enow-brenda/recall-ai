@@ -82,6 +82,11 @@ def sync_account(db, account: ConnectedAccount) -> int:
         )
     }
 
+    # Release the read transaction before the slow per-message Gmail fetch loop,
+    # otherwise this session idles in a transaction across minutes of external I/O
+    # and Neon terminates it (idle_in_transaction_session_timeout).
+    db.commit()
+
     emails_to_insert = []
     attachments_to_insert = []
     links_to_insert = []
@@ -233,6 +238,24 @@ def _parse_date(raw: str | None) -> datetime:
     except Exception:
         return datetime.now(timezone.utc)
 
+def run_sync_for_active_accounts(user_id: uuid.UUID) -> None:
+    """Runs AFTER the response is sent — opens fresh sessions and syncs every
+    ACTIVE connected account for the user, one by one."""
+    db = SessionLocal()
+    try:
+        emails = [
+            row[0]
+            for row in db.query(ConnectedAccount.account_identifier)
+            .filter(ConnectedAccount.user_id == user_id, ConnectedAccount.is_active.is_(True))
+            .all()
+        ]
+    finally:
+        db.close()
+
+    for account_email in emails:
+        run_initial_sync(user_id, account_email)
+
+
 def run_initial_sync(user_id: uuid.UUID, account_email: str) -> None:
     """Runs AFTER the response is sent — must open its own DB session,
     because the request's session is closed by then."""
@@ -251,5 +274,20 @@ def run_initial_sync(user_id: uuid.UUID, account_email: str) -> None:
         logger.exception("Background sync failed for %s", account_email)
         # never raise out of a background task — it can't reach the browser anyway;
         # the manual /sync endpoint remains as retry path
+    finally:
+        db.close()
+
+
+def sync_account_by_id(account_id: uuid.UUID) -> None:
+    """Background sync for the manual /sync endpoint — opens its own session
+    and syncs the given account regardless of its active flag."""
+    db = SessionLocal()
+    try:
+        account = db.get(ConnectedAccount, account_id)
+        if account:
+            sync_account(db, account)
+            logger.info("Background sync done for account %s", account_id)
+    except Exception:
+        logger.exception("Background sync failed for account %s", account_id)
     finally:
         db.close()

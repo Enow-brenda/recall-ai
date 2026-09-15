@@ -15,7 +15,7 @@ from app.core.middleware.auth_backend import (
 )
 from app.db.db_instance import get_db
 from app.db.models import User
-from app.services.gmail_service import run_initial_sync
+from app.services.gmail_service import run_initial_sync, run_sync_for_active_accounts
 from app.schemas.common import ok
 from app.services.auth_service import (
     OAUTH_INTENT_COOKIE,
@@ -68,8 +68,8 @@ def callback(background_tasks: BackgroundTasks, code: str, state: str, request: 
     current_user = _optional_current_user(request, db)   # None if not logged in yet
     user, created_new_user = resolve_login(db, tokens, info, current_user)
 
-    #sync each time a user logs in
-    background_tasks.add_task(run_initial_sync, user.id, info["email"])
+    #sync every active connected account each time the user logs in
+    background_tasks.add_task(run_sync_for_active_accounts, user.id)
 
 
     token = create_access_token(user.id)

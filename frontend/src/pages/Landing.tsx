@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Navigate, useNavigate } from 'react-router-dom'
 import { api, USE_MOCK_API } from '../api/client'
 import { Icon } from '../components/Icon'
 import { Logo } from '../components/Logo'
+import { useAuth } from '../context/AuthContext'
 
 const FEATURES = [
   {
@@ -42,16 +43,16 @@ const PLANS = [
     cta: 'Get started',
     disabled: false,
     highlighted: false,
-    features: ['50 queries / month', '5 GB storage', 'Basic conversational search', 'Full source citations'],
+    features: ['25 queries / day', '0.5 GB storage', 'Basic conversational search', 'Full source citations'],
   },
   {
     name: 'Pro',
-    price: '$12',
+    price: '$9.99',
     period: '/month',
     cta: 'Upgrade to Pro',
     disabled: true,
     highlighted: true,
-    features: ['Unlimited queries', '100 GB storage', 'Advanced document parsing', 'Priority support'],
+    features: ['Unlimited queries', '50 GB storage', 'Advanced document parsing', 'Priority support'],
   },
 ]
 
@@ -70,10 +71,13 @@ const NAV_LINKS = [
 
 export function Landing() {
   const navigate = useNavigate()
+  const { isAuthenticated, loading } = useAuth()
   const [contact, setContact] = useState({ name: '', email: '', message: '' })
   const [sending, setSending] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [sent, setSent] = useState(false)
+
+  if (!loading && isAuthenticated) return <Navigate to="/chat" replace />
 
   const goToApp = () => {
     if (USE_MOCK_API) {

@@ -5,6 +5,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session, joinedload
 
 from app.core.exceptions import InvalidRequestError, NotFoundError
+from app.core.middleware.usage_guard import maybe_reset_usage
 from app.db.db_instance import get_db
 from app.db.models import Attachment, ConnectedAccount, Conversation, Email, Link, Message, User
 from app.schemas.user import (
@@ -32,6 +33,7 @@ def get_profile(db: Session, user_id: uuid.UUID) -> UserProfile:
             id=user.plan.id,
             name=user.plan.name,
             max_daily_queries=user.plan.max_daily_queries,
+            memory_limit_gb=user.plan.memory_limit_gb,
         ),
         plan_usage=user.plan_usage,
         last_plan_reset=user.last_plan_reset,
@@ -69,7 +71,44 @@ def get_stats(db: Session, user_id: uuid.UUID) -> UsageStats:
     )
 
     user = db.get(User, user_id)
+    if maybe_reset_usage(user):
+        db.commit()
     limit = user.plan.max_daily_queries if user.plan else -1
+
+    emails_bytes = (
+        db.query(
+            func.coalesce(func.sum(func.octet_length(Email.raw_body)), 0)
+            + func.coalesce(func.sum(func.length(func.coalesce(Email.subject, ""))), 0)
+            + func.coalesce(func.sum(func.length(func.coalesce(Email.sender, ""))), 0)
+        )
+        .filter(Email.user_id == user_id)
+        .scalar()
+    )
+    attachment_bytes = (
+        db.query(
+            func.coalesce(func.sum(func.coalesce(Attachment.size_bytes, 0)), 0)
+            + func.coalesce(
+                func.sum(func.length(func.coalesce(Attachment.extracted_text, ""))), 0
+            )
+        )
+        .select_from(Attachment)
+        .join(Email, Attachment.email_id == Email.id)
+        .filter(Email.user_id == user_id)
+        .scalar()
+    )
+    link_bytes = (
+        db.query(
+            func.coalesce(func.sum(func.length(Link.url)), 0)
+            + func.coalesce(
+                func.sum(func.length(func.coalesce(Link.context_snippet, ""))), 0
+            )
+        )
+        .select_from(Link)
+        .join(Email, Link.email_id == Email.id)
+        .filter(Email.user_id == user_id)
+        .scalar()
+    )
+
     return UsageStats(
         emails_indexed=emails_indexed,
         attachments=attachments,
@@ -78,6 +117,7 @@ def get_stats(db: Session, user_id: uuid.UUID) -> UsageStats:
         messages_sent=messages_sent,
         quota_used=user.plan_usage,
         quota_limit=limit,
+        storage_used=int((emails_bytes or 0) + (attachment_bytes or 0) + (link_bytes or 0)),
     )
 
 def delete_account(db: Session, user_id: uuid.UUID, confirm: str):

@@ -18,7 +18,7 @@ export const MOCK_USER: UserProfile = {
   name: 'Brenda Enow',
   primary_email: 'brenda.enow@gmail.com',
   profile_picture_url: 'https://i.pravatar.cc/96?img=47',
-  plan: { id: 'p_free', name: 'Free', max_daily_queries: 25 },
+  plan: { id: 'p_free', name: 'Free', max_daily_queries: 25, memory_limit_gb: 0.5 },
   plan_usage: 12,
   last_plan_reset: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(),
   created_at: new Date(Date.now() - 1000 * 60 * 60 * 24 * 40).toISOString(),
@@ -32,6 +32,7 @@ export const MOCK_STATS: UsageStats = {
   messages_sent: 14,
   quota_used: 12,
   quota_limit: 25,
+  storage_used: 134_217_728,
 }
 
 export const MOCK_PROVIDERS: ProviderInfo[] = [

@@ -12,6 +12,7 @@ class PlanInfo(BaseModel):
     id: uuid.UUID
     name: str 
     max_daily_queries: int                               # must equal "DELETE"
+    memory_limit_gb: float
 
 # this is returned when we get a user
 class UserProfile(BaseModel):                       # response shape for GET/PATCH
@@ -33,6 +34,7 @@ class UsageStats(BaseModel):
     messages_sent: int
     quota_used: int
     quota_limit: int
+    storage_used: int
 
 
 

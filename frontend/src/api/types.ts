@@ -29,6 +29,7 @@ export interface PlanInfo {
   id: UUID
   name: string
   max_daily_queries: number
+  memory_limit_gb: number
 }
 
 export interface UserProfile {
@@ -50,6 +51,7 @@ export interface UsageStats {
   messages_sent: number
   quota_used: number
   quota_limit: number
+  storage_used: number
 }
 
 /* ------------------------------------------------------------------ */

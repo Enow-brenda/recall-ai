@@ -4,10 +4,12 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useChat } from '../context/ChatContext'
 import { useUI } from '../context/UIContext'
+import type { Conversation } from '../api/types'
 import { Sidebar } from '../components/Sidebar'
 import { ConnectedAccountsModal } from '../components/modals/ConnectedAccountsModal'
 import { AddAccountModal } from '../components/modals/AddAccountModal'
 import { HelpModal } from '../components/modals/HelpModal'
+import { DeleteConversationModal } from '../components/modals/DeleteConversationModal'
 import { Icon } from '../components/Icon'
 
 export function AppShell({ children }: { children: ReactNode }) {
@@ -17,6 +19,30 @@ export function AppShell({ children }: { children: ReactNode }) {
   const navigate = useNavigate()
   const location = useLocation()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [deletingConversation, setDeletingConversation] = useState<Conversation | null>(null)
+  const [deleteBusy, setDeleteBusy] = useState(false)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
+
+  const openDeleteConfirm = (conv: Conversation) => {
+    setDeletingConversation(conv)
+    setDeleteBusy(false)
+    setDeleteError(null)
+  }
+
+  const confirmDeleteConversation = async () => {
+    if (!deletingConversation) return
+    setDeleteBusy(true)
+    setDeleteError(null)
+    try {
+      await chat.deleteConversation(deletingConversation.id)
+      if (deletingConversation.id === chat.activeConversationId) navigate('/chat')
+      setDeletingConversation(null)
+    } catch (e) {
+      setDeleteError(e instanceof Error ? e.message : 'Failed to delete conversation. Please try again.')
+    } finally {
+      setDeleteBusy(false)
+    }
+  }
 
   useEffect(() => {
     setMenuOpen(false)
@@ -31,8 +57,13 @@ export function AppShell({ children }: { children: ReactNode }) {
   const activeConversation = chat.conversations.find((c) => c.id === chat.activeConversationId)
   const title = isSettings ? 'Settings' : (activeConversation?.title ?? 'New chat')
 
+  const handleSelectConversation = (id: string) => {
+    void chat.selectConversation(id)
+    navigate(`/chat/${id}`)
+  }
+
   return (
-    <div className="min-h-screen bg-surface">
+    <div className="flex h-dvh flex-col overflow-hidden bg-surface">
       <Sidebar
         conversations={chat.conversations}
         activeConversationId={chat.activeConversationId ?? null}
@@ -41,7 +72,8 @@ export function AppShell({ children }: { children: ReactNode }) {
         creatingConversation={chat.creatingConversation}
         selectingConversationId={chat.selectingConversationId}
         onNewChat={() => void chat.newChat()}
-        onSelectConversation={(id) => void chat.selectConversation(id)}
+        onSelectConversation={handleSelectConversation}
+        onDeleteConversation={(conv) => openDeleteConfirm(conv)}
         onToggleAccount={(id, checked) => void chat.toggleAccount(id, checked)}
         onOpenAccounts={() => ui.openModal('accounts')}
         onOpenSettings={() => navigate('/settings')}
@@ -51,7 +83,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       />
 
       {/* Header: title left, theme + profile right */}
-      <header className="sticky top-0 z-20 flex items-center justify-between gap-3 border-b border-border bg-surface/90 px-4 py-3 backdrop-blur md:ml-[300px]">
+      <header className="sticky top-0 z-20 flex shrink-0 items-center justify-between gap-3 border-b border-border bg-surface/90 px-4 py-3 backdrop-blur md:ml-[300px]">
         <div className="flex min-w-0 items-center gap-2">
           <button
             type="button"
@@ -118,7 +150,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </header>
 
-      <main className="min-h-screen md:ml-[300px]">{children}</main>
+      <main className="flex min-h-0 flex-1 flex-col overflow-y-auto md:ml-[300px]">{children}</main>
 
       {ui.modal === 'accounts' && (
         <ConnectedAccountsModal
@@ -131,6 +163,14 @@ export function AppShell({ children }: { children: ReactNode }) {
         <AddAccountModal open onClose={ui.closeModal} onAdded={() => void chat.refreshAccounts()} />
       )}
       {ui.modal === 'help' && <HelpModal open onClose={ui.closeModal} />}
+      <DeleteConversationModal
+        open={deletingConversation !== null}
+        conversationTitle={deletingConversation?.title}
+        busy={deleteBusy}
+        error={deleteError}
+        onConfirm={() => void confirmDeleteConversation()}
+        onClose={() => setDeletingConversation(null)}
+      />
     </div>
   )
 }

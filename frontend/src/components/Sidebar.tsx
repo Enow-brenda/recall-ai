@@ -13,6 +13,7 @@ interface SidebarProps {
   selectingConversationId: string | null
   onNewChat: () => void
   onSelectConversation: (id: string) => void
+  onDeleteConversation: (conversation: Conversation) => void
   onToggleAccount: (id: string, checked: boolean) => void
   onOpenAccounts: () => void
   onOpenSettings: () => void
@@ -30,6 +31,7 @@ export function Sidebar({
   selectingConversationId,
   onNewChat,
   onSelectConversation,
+  onDeleteConversation,
   onToggleAccount,
   onOpenAccounts,
   onOpenSettings,
@@ -102,30 +104,49 @@ export function Sidebar({
             <ul className="mt-1 space-y-0.5">
               {group.items.map((c) => (
                 <li key={c.id}>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      onSelectConversation(c.id)
-                      onClose()
-                    }}
-                    disabled={selectingConversationId === c.id}
-                    className={`flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left text-body-sm transition-colors disabled:cursor-wait ${
+                  <div
+                    className={`group flex items-center rounded-lg transition-colors ${
                       activeConversationId === c.id
                         ? 'bg-primary text-on-primary'
-                        : 'text-primary hover:bg-surface-high'
+                        : 'hover:bg-surface-high'
                     }`}
                   >
-                    <Icon
-                      name="chat_bubble"
-                      size={16}
-                      className="shrink-0 text-muted"
-                      filled={activeConversationId === c.id}
-                    />
-                    <span className="truncate">{c.title}</span>
-                    {selectingConversationId === c.id && (
-                      <Icon name="sync" size={14} className="ml-auto animate-spin shrink-0" />
-                    )}
-                  </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onSelectConversation(c.id)
+                        onClose()
+                      }}
+                      disabled={selectingConversationId === c.id}
+                      className={`flex min-w-0 flex-1 items-center gap-2 px-2 py-2 text-left text-body-sm transition-colors disabled:cursor-wait ${
+                        activeConversationId === c.id ? 'text-on-primary' : 'text-primary'
+                      }`}
+                    >
+                      <Icon
+                        name="chat_bubble"
+                        size={16}
+                        className="shrink-0 text-muted"
+                        filled={activeConversationId === c.id}
+                      />
+                      <span className="truncate">{c.title}</span>
+                      {selectingConversationId === c.id && (
+                        <Icon name="sync" size={14} className="ml-auto animate-spin shrink-0" />
+                      )}
+                    </button>
+                    <button
+                      type="button"
+                      aria-label={`Delete conversation ${c.title}`}
+                      title="Delete conversation"
+                      onClick={() => onDeleteConversation(c)}
+                      className={`mr-1 flex h-8 w-8 shrink-0 items-center justify-center rounded transition-colors focus-visible:opacity-100 ${
+                        activeConversationId === c.id
+                          ? 'text-on-primary/70 opacity-100 hover:text-on-primary'
+                          : 'text-muted opacity-0 hover:text-danger group-hover:opacity-100'
+                      }`}
+                    >
+                      <Icon name="delete" size={16} />
+                    </button>
+                  </div>
                 </li>
               ))}
             </ul>

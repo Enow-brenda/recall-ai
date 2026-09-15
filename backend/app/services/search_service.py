@@ -49,6 +49,7 @@ def search(
     *,
     account_ids: Sequence[uuid.UUID] | None = None,
     k: int = DEFAULT_K,
+    min_similarity: float | None = None,
 ) -> list[dict]:
     """Return up to `k` ranked hits.
 
@@ -56,6 +57,10 @@ def search(
         {"type": "email",      "email": <Email>,      "att": None,        "dist": float}
         {"type": "attachment", "email": <Email>,      "att": <Attachment>, "dist": float}
     sorted by ascending cosine distance. Empty query / no embedding → [].
+
+    min_similarity gates out weak matches: hits with cosine distance greater
+    than (1 - min_similarity) are excluded, so unrelated text doesn't surface
+    as bogus "Sources" for e.g. greetings or gibberish.
     """
     qvec = embed_text(query, task_type="RETRIEVAL_QUERY")
     if not qvec:
@@ -65,15 +70,26 @@ def search(
     if account_ids:
         account_filter.append(Email.account_id.in_(account_ids))
 
+    email_filters: list[object] = [
+        Email.user_id == user_id,
+        Email.embedding.isnot(None),
+        *account_filter,
+    ]
+    att_filters: list[object] = [
+        Email.user_id == user_id,
+        Attachment.embedding.isnot(None),
+        *account_filter,
+    ]
+    if min_similarity is not None:
+        max_dist = 1.0 - min_similarity
+        email_filters.append(Email.embedding.cosine_distance(qvec) <= max_dist)
+        att_filters.append(Attachment.embedding.cosine_distance(qvec) <= max_dist)
+
     email_rows = (
         db.query(
             Email, Email.embedding.cosine_distance(qvec).label("dist")
         )
-        .filter(
-            Email.user_id == user_id,
-            Email.embedding.isnot(None),
-            *account_filter,
-        )
+        .filter(*email_filters)
         .order_by("dist")
         .limit(k)
         .all()
@@ -86,11 +102,7 @@ def search(
             Email,
         )
         .join(Email, Attachment.email_id == Email.id)
-        .filter(
-            Email.user_id == user_id,
-            Attachment.embedding.isnot(None),
-            *account_filter,
-        )
+        .filter(*att_filters)
         .order_by("dist")
         .limit(k)
         .all()

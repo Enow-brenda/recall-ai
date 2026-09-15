@@ -84,7 +84,7 @@ export function AddAccountModal({ open, onClose, onAdded }: AddAccountModalProps
         {!loading &&
           providers.map((p) => {
           const busy = connecting === p.key
-          const connectable = p.is_active && !isConnected(p.key)
+          const connectable = p.is_active && !busy
           return (
             <li
               key={p.key}
@@ -105,24 +105,29 @@ export function AddAccountModal({ open, onClose, onAdded }: AddAccountModalProps
                   {isConnected(p.key) ? 'Connected' : p.is_active ? 'Available' : 'Coming soon'}
                 </p>
               </div>
-{connectable &&
-                (busy ? (
-                  <span className="flex shrink-0 items-center gap-1.5 text-label-md text-accent">
-                    <Icon name="sync" size={14} className="animate-spin" /> Connecting
-                  </span>
-                ) : (
-                  <span className="flex shrink-0 items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-label-md text-on-accent">
-                    <Icon name="add" size={14} /> Connect
-                  </span>
-                ))}
-              {isConnected(p.key) && (
-                <span className="flex shrink-0 items-center gap-1 text-label-sm font-medium text-success">
-                  <Icon name="check_circle" size={15} filled /> Connected
-                </span>
-              )}
               {!p.is_active && !isConnected(p.key) && (
                 <span className="shrink-0 rounded-full bg-surface-low px-3 py-1 text-label-sm uppercase tracking-wider text-muted">
                   Soon
+                </span>
+              )}
+              {busy && (
+                <span className="flex shrink-0 items-center gap-1.5 text-label-md text-accent">
+                  <Icon name="sync" size={14} className="animate-spin" /> Connecting
+                </span>
+              )}
+              {!busy && isConnected(p.key) && (
+                <span className="flex shrink-0 items-center gap-2">
+                  <span className="flex shrink-0 items-center gap-1 text-label-sm font-medium text-success">
+                    <Icon name="check_circle" size={15} filled /> Connected
+                  </span>
+                  <span className="flex shrink-0 items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-label-md text-on-accent">
+                    <Icon name="add" size={14} /> Add another
+                  </span>
+                </span>
+              )}
+              {!busy && p.is_active && !isConnected(p.key) && (
+                <span className="flex shrink-0 items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-label-md text-on-accent">
+                  <Icon name="add" size={14} /> Connect
                 </span>
               )}
             </li>

@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import type { KeyboardEvent } from 'react'
 import type { AccountSummary, ProviderInfo } from '../../api/types'
 import { api, USE_MOCK_API } from '../../api/client'
 import { Icon } from '../Icon'
@@ -23,6 +22,7 @@ export function ConnectedAccountsModal({ open, onClose, onManaged }: ConnectedAc
   const [accounts, setAccounts] = useState<AccountSummary[]>([])
   const [syncing, setSyncing] = useState<string | null>(null)
   const [connecting, setConnecting] = useState<string | null>(null)
+  const [syncResult, setSyncResult] = useState<Record<string, string>>({})
 
   useEffect(() => {
     if (!open) return
@@ -36,8 +36,20 @@ export function ConnectedAccountsModal({ open, onClose, onManaged }: ConnectedAc
 
   const sync = async (accountId: string) => {
     setSyncing(accountId)
-    await api.accounts.sync(accountId)
-    setSyncing(null)
+    try {
+      await api.accounts.sync(accountId)
+      setSyncResult((prev) => ({
+        ...prev,
+        [accountId]: 'Sync started — new emails will appear shortly.',
+      }))
+    } catch (e) {
+      setSyncResult((prev) => ({
+        ...prev,
+        [accountId]: e instanceof Error ? e.message : 'Sync failed',
+      }))
+    } finally {
+      setSyncing(null)
+    }
   }
 
   const connect = async (provider: string) => {
@@ -77,76 +89,90 @@ export function ConnectedAccountsModal({ open, onClose, onManaged }: ConnectedAc
       <ul className="space-y-3">
         {providers.map((p) => {
           const connected = connectedFor(p.key)
-          const connectingNow = connecting === p.key
-          const connectable = p.is_active && connected.length === 0
+          const busy = connecting === p.key
           const icon = PROVIDER_ICONS[p.key] ?? 'link'
           return (
-            <li
-              key={p.key}
-              role={connectable ? 'button' : undefined}
-              tabIndex={connectable ? 0 : undefined}
-              onClick={connectable ? () => void connect(p.key) : undefined}
-              onKeyDown={
-                connectable
-                  ? (e: KeyboardEvent<HTMLLIElement>) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault()
-                        void connect(p.key)
-                      }
-                    }
-                  : undefined
-              }
-              className={`flex items-center gap-3 rounded-[8px] border border-border bg-surface p-3.5 transition-colors ${
-                connectable ? 'cursor-pointer hover:border-accent' : ''
-              } ${connectingNow ? 'cursor-wait opacity-70' : ''}`}
-            >
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-surface-high">
-                <Icon name={icon} size={20} className="text-primary" />
-              </span>
-              <div className="min-w-0 flex-1">
-                <p className="text-body-sm font-medium text-primary">{p.display_name}</p>
-                <p className="truncate text-label-sm text-muted">
-                  {connected.length > 0
-                    ? connected.map((a) => a.display_label).join(', ')
-                    : p.is_active
-                      ? 'Not connected'
-                      : 'Coming soon'}
-                </p>
-              </div>
-              {!p.is_active ? (
-                <span className="shrink-0 rounded-full bg-surface-low px-3 py-1 text-label-sm uppercase tracking-wider text-muted">
-                  Coming soon
+            <li key={p.key} className="overflow-hidden rounded-[8px] border border-border bg-surface">
+              <div
+                className={`flex items-center gap-3 p-3.5 transition-colors ${
+                  busy ? 'opacity-70' : ''
+                } ${p.is_active && !busy ? 'hover:bg-surface-low' : ''}`}
+              >
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-surface-high">
+                  <Icon name={icon} size={20} className="text-primary" />
                 </span>
-              ) : connected.length > 0 ? (
-                <div className="flex shrink-0 items-center gap-2">
+                <div className="min-w-0 flex-1">
+                  <p className="text-body-sm font-medium text-primary">{p.display_name}</p>
+                  <p className="truncate text-label-sm text-muted">
+                    {connected.length > 0
+                      ? `${connected.length} connected`
+                      : p.is_active
+                        ? 'Not connected'
+                        : 'Coming soon'}
+                  </p>
+                </div>
+                {!p.is_active ? (
+                  <span className="shrink-0 rounded-full bg-surface-low px-3 py-1 text-label-sm uppercase tracking-wider text-muted">
+                    Coming soon
+                  </span>
+                ) : busy ? (
+                  <span className="flex shrink-0 items-center gap-1.5 text-label-md text-accent">
+                    <Icon name="sync" size={14} className="animate-spin" /> Connecting
+                  </span>
+                ) : (
                   <button
                     type="button"
-                    onClick={() => sync(connected[0].id)}
-                    disabled={syncing !== null}
-                    className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-label-md text-primary transition-colors hover:bg-surface-high disabled:opacity-60"
+                    onClick={() => void connect(p.key)}
+                    className="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-label-md text-on-primary transition-colors hover:opacity-90"
                   >
-                    {syncing === connected[0].id ? (
-                      <span className="flex items-center gap-1.5">
-                        <Icon name="sync" size={14} className="animate-spin" /> Syncing
-                      </span>
-                    ) : (
-                      <>
-                        <Icon name="sync" size={14} /> Sync
-                      </>
-                    )}
+                    <Icon
+                      name={connected.length > 0 ? 'add' : 'add_link'}
+                      size={14}
+                    />
+                    {connected.length > 0 ? 'Add account' : 'Connect'}
                   </button>
-                  <span className="flex items-center gap-1 text-label-sm font-medium text-success">
-                    <Icon name="check_circle" size={15} filled /> Connected
-                  </span>
-                </div>
-              ) : connectingNow ? (
-                <span className="flex shrink-0 items-center gap-1.5 text-label-md text-accent">
-                  <Icon name="sync" size={14} className="animate-spin" /> Connecting
-                </span>
-              ) : (
-                <span className="flex shrink-0 items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-label-md text-on-primary">
-                  <Icon name="add_link" size={14} /> Connect
-                </span>
+                )}
+              </div>
+
+              {connected.length > 0 && (
+                <ul className="border-t border-border">
+                  {connected.map((acc) => (
+                    <li
+                      key={acc.id}
+                      className="border-b border-border last:border-b-0"
+                    >
+                      <div className="flex items-center gap-3 px-3.5 py-2.5">
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-body-sm text-primary">{acc.display_label}</p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => sync(acc.id)}
+                          disabled={syncing !== null}
+                          className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-label-md text-primary transition-colors hover:bg-surface-high disabled:opacity-60"
+                        >
+                          {syncing === acc.id ? (
+                            <span className="flex items-center gap-1.5">
+                              <Icon name="sync" size={14} className="animate-spin" /> Syncing
+                            </span>
+                          ) : (
+                            <>
+                              <Icon name="sync" size={14} /> Sync
+                            </>
+                          )}
+                        </button>
+                        <span className="flex items-center gap-1 text-label-sm font-medium text-success">
+                          <Icon name="check_circle" size={15} filled /> Connected
+                        </span>
+                      </div>
+                      {syncResult[acc.id] && (
+                        <p className="px-3.5 pb-2.5 text-label-sm text-accent">
+                          {syncResult[acc.id]}
+                        </p>
+                      )}
+                    </li>
+                  ))}
+                </ul>
               )}
             </li>
           )

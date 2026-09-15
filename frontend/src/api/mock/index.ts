@@ -77,7 +77,7 @@ export const mockApi: Api = {
       return MOCK_ACCOUNTS.map((a) => ({ ...a }))
     },
     async sync() {
-      await delay(1200)
+      await delay(400)
     },
     async toggle(accountId): Promise<AccountSummary> {
       await delay(500)
