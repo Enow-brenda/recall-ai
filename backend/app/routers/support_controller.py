@@ -48,7 +48,9 @@ def support(
             status_code=503,
             detail="Support email is not configured on the server.",
         ) from exc
-    except smtplib.SMTPException as exc:
+    except (smtplib.SMTPException, OSError) as exc:
+        # SMTPException covers protocol/auth errors; OSError covers connect /
+        # DNS / network failures (e.g. "Network is unreachable").
         logger.exception("Sending support email failed")
         raise HTTPException(
             status_code=502,
