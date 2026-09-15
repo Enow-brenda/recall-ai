@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 
 from app.core.middleware.auth_backend import get_current_user
 from app.core.exceptions import NotFoundError
+from app.config import auth_cookie_flags
 from app.db.db_instance import get_db
 from app.db.models import ConnectedAccount, Provider, User
 from app.schemas.account import AccountSummary, ConnectProviderRequest, ProviderInfo
@@ -35,19 +36,25 @@ def connect_account(
     provider = get_active_provider(db, payload.provider)
 
     state = secrets.token_urlsafe(32)
-    url = build_auth_url(state) 
+    # prompt=consent so Google re-issues a refresh_token on every connect,
+    # even if the user already authorized before.
+    url = build_auth_url(state, prompt_consent=True)
 
+    # Match the session cookie's flags: cross-site (Netlify -> Render) with
+    # SameSite=Lax the browser partitions/drops the state cookie and the
+    # callback 400s on a state mismatch. Mirrors auth_cookie_flags().
+    secure, samesite = auth_cookie_flags()
     resp = JSONResponse(
         content=ok({"redirect_url": url}, "Connect flow started").model_dump()
     )
     resp.set_cookie(
         OAUTH_STATE_COOKIE, state,
-        max_age=INTENT_MAX_AGE, httponly=True, samesite="lax",
+        max_age=INTENT_MAX_AGE, httponly=True, samesite=samesite, secure=secure,
     )
     resp.set_cookie(
         OAUTH_INTENT_COOKIE,
         json.dumps({"mode": "connect", "provider_key": provider.key}),
-        max_age=INTENT_MAX_AGE, httponly=True, samesite="lax",
+        max_age=INTENT_MAX_AGE, httponly=True, samesite=samesite, secure=secure,
     )
     return resp
 

@@ -52,14 +52,19 @@ def login():
     state = secrets.token_urlsafe(32)
     url = build_auth_url(state)
     resp = RedirectResponse(url)
+    # Match the session cookie's cross-site flags — same rationale as the
+    # connect flow in accounts_controller.
+    secure, samesite = auth_cookie_flags()
     resp.set_cookie(OAUTH_STATE_COOKIE, state,
                     max_age=600,        # dies in 10 min
                     httponly=True,
-                    samesite="lax")
+                    samesite=samesite,
+                    secure=secure)
     resp.set_cookie(OAUTH_INTENT_COOKIE, json.dumps({"mode": "login"}),
                     max_age=600,
                     httponly=True,
-                    samesite="lax")
+                    samesite=samesite,
+                    secure=secure)
     return resp
 
 @router.get("/callback")

@@ -41,13 +41,22 @@ def get_fresh_access_token(account: ConnectedAccount) -> str:
     if not creds_data.get("refresh_token"):
         raise InvalidRequestError("Reconnect this account to continue syncing")
     
-    resp = httpx.post("https://oauth2.googleapis.com/token", data={
-        "client_id": settings.google_client_id,
-        "client_secret": settings.google_client_secret,
-        "refresh_token": creds_data["refresh_token"],
-        "grant_type": "refresh_token",
-    })
-    resp.raise_for_status()
+    try:
+        resp = httpx.post("https://oauth2.googleapis.com/token", data={
+            "client_id": settings.google_client_id,
+            "client_secret": settings.google_client_secret,
+            "refresh_token": creds_data["refresh_token"],
+            "grant_type": "refresh_token",
+        })
+        resp.raise_for_status()
+    except httpx.HTTPStatusError:
+        # Covers invalid_grant (revoked by the user, or expired). Same end
+        # result and message as a missing refresh token: reconnect to heal.
+        logger.exception(
+            "Token refresh failed for account %s (%s)",
+            account.id, account.account_identifier,
+        )
+        raise InvalidRequestError("Reconnect this account to continue syncing")
     new_tokens = resp.json()
 
     account.credentials = {

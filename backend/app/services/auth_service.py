@@ -22,8 +22,8 @@ SCOPES = [
     "https://www.googleapis.com/auth/gmail.readonly",
 ] # a list of all the permissions we are asking for
 
-def build_auth_url(state: str) -> str:
-    return "https://accounts.google.com/o/oauth2/v2/auth?" + urlencode({
+def build_auth_url(state: str, prompt_consent: bool = False) -> str:
+    params = {
         "client_id": settings.google_client_id,
         "redirect_uri": settings.oauth_redirect_uri,
         "response_type": "code",
@@ -31,7 +31,13 @@ def build_auth_url(state: str) -> str:
         "access_type": "offline",
         "include_granted_scopes": "true",
         "state": state, # preventing csrf
-    })
+    }
+    if prompt_consent:
+        # Google only hands out a refresh_token on FIRST consent; forcing the
+        # consent screen guarantees a fresh one on every connect, so reconnects
+        # can heal accounts whose stored refresh_token was lost.
+        params["prompt"] = "consent"
+    return "https://accounts.google.com/o/oauth2/v2/auth?" + urlencode(params)
 
 # exchange the code for tokens
 # here google sends us the code and we send it back as well as the client_secret so that we get the tokens
